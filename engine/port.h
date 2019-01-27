@@ -4,8 +4,6 @@
 typedef uint8_t byte;
 typedef bool boolean;
 
-const int16_t HEIGHT = 64;
-const int16_t WIDTH  = 128;
 const int32_t F_CPU = 16000000;
 
 #define B00000000  0x0

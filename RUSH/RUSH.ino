@@ -16,13 +16,19 @@ void setup()
   arduboy.setFrameRate(60);
 }
 
+int16_t yAngle = 0;
+
 void loop()
 {
   if (!(arduboy.nextFrame())) return;
   arduboy.pollButtons();
   arduboy.clear();
 
-  models.drawModel(obj, 0, 0, 0, 1);
+  models.drawModel(obj, 15, yAngle, 0, 1);
+  if(arduboy.everyXFrames(1))
+  {
+      yAngle++;
+  }
 
   arduboy.display();
 }
