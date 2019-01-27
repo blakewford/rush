@@ -21,7 +21,7 @@ ssize_t write(int fd, const void *buf, size_t count)
     while(count--)
     {
         /* Wait for empty transmit buffer */
-        while ( !( UCSR1A & (1<<UDRE1)) )
+//        while ( !( UCSR1A & (1<<UDRE1)) )
             ;
 //        UDR0 = *c;
         c++;

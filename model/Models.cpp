@@ -229,6 +229,8 @@ struct vertex
     float z;
 };
 
+float copy[4252];
+
 void Models::drawModel(const float* model, int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color)
 {
 #ifdef PROFILE
@@ -238,7 +240,6 @@ void Models::drawModel(const float* model, int16_t xAngle, int16_t yAngle, int16
         count*=3;
         count++;
 
-        float* copy = new float[count];
         memcpy(copy, model, count*sizeof(float));
 
         int16_t current = 1;
@@ -336,9 +337,6 @@ void Models::drawModel(const float* model, int16_t xAngle, int16_t yAngle, int16
 
             arduboy.fillTriangle(x1, y1, x2, y2, x3, y3, color);
         }
-
-        delete copy;
-        copy = nullptr;
 
 #ifdef PROFILE
         microseconds end = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());

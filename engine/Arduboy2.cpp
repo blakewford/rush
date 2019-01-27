@@ -27,3 +27,7 @@ void Arduboy2Base::display()
 void Arduboy2Base::fillTriangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3, uint8_t color = 1)
 {
 }
+
+bool Arduboy2Base::everyXFrames(uint8_t frames)
+{
+}
