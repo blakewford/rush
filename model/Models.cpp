@@ -230,6 +230,7 @@ struct vertex
 };
 
 float copy[4252];
+//float copy[1984];
 
 void Models::drawModel(const float* model, int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color)
 {
