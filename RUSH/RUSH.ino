@@ -1,4 +1,5 @@
 #include "assets.h"
+//#include "compressed.h"
 
 #include <Models.h>
 #include <Arduino.h>
@@ -25,6 +26,7 @@ void loop()
   arduboy.clear();
 
   models.drawModel(obj, 15, yAngle, 0, 1);
+//  models.drawCompressedModel(obj, ndxToValue, 15, yAngle, 0, 1);
   if(arduboy.everyXFrames(1))
   {
       yAngle++;

@@ -235,112 +235,131 @@ float copy[4252];
 void Models::drawModel(const float* model, int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color)
 {
 #ifdef PROFILE
-        microseconds start = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
+    microseconds start = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
 #endif
-        int16_t count = (int16_t)model[0];
-        count*=3;
-        count++;
-
-        memcpy(copy, model, count*sizeof(float));
-
-        int16_t current = 1;
-        count = (int16_t)copy[0];
-
-        param A, B;
-        char buffer[128];
-        int32_t valueSize, shapeSize;
-        rotationEntry(yAngle, A, Y);
-        while(count--)
-        {
-            int16_t start = current;
-
-            memset(buffer, '\0', 128);
-            sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
-            parseEntry(buffer, B, valueSize, shapeSize);
-            float C[(int32_t)(A.shape[0]*B.shape[1])];
-            TensorPort(A, B, C);
-            copy[start]     = C[0];
-            copy[start + 1] = C[1];
-            copy[start + 2] = C[2];
-        }
-
-        current = 1;
-        count = (int16_t)copy[0];
-
-        param D, E;
-        rotationEntry(xAngle, D, X);
-        while(count--)
-        {
-            int16_t start = current;
-
-            sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
-            parseEntry(buffer, E, valueSize, shapeSize);
-            float F[(int32_t)(D.shape[0]*E.shape[1])];
-            TensorPort(D, E, F);
-            copy[start]     = F[0];
-            copy[start + 1] = F[1];
-            copy[start + 2] = F[2];
-        }
-
-        current = 1;
-        count = (int16_t)copy[0];
-
-        param G, H;
-        rotationEntry(zAngle, G, Z);
-        while(count--)
-        {
-            int16_t start = current;
-
-            sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
-            parseEntry(buffer, H, valueSize, shapeSize);
-            float I[(int32_t)(G.shape[0]*H.shape[1])];
-            TensorPort(G, H, I);
-            copy[start]     = I[0];
-            copy[start + 1] = I[1];
-            copy[start + 2] = I[2];
-        }
-
-        current = 1;
-        count = (int16_t)copy[0];
-        while(count--)
-        {
-            int16_t start = current;
-
-            param J, K;
-            parseEntry(ortho, J, valueSize, shapeSize);
-            sprintf(buffer, "[%.8f, %.8f, %.8f, 1.0], name='vertex', shape=[4,1]\n", copy[current++], copy[current++], copy[current++]);
-            parseEntry(buffer, K, valueSize, shapeSize);
-            float L[(int32_t)(J.shape[0]*K.shape[1])];
-            TensorPort(J, K, L);
-            copy[start]     = L[0];
-            copy[start + 1] = L[1];
-            copy[start + 2] = L[2];
-        }
-
-        int8_t offsetX = WIDTH/2;
-        int8_t offsetY = HEIGHT/2;
-
-        current = 1;
-        count = (int16_t)copy[0];
-        while(count-=3)
-        {
-            int16_t x1 = copy[current++] + offsetX;
-            int16_t y1 = copy[current++] + offsetY;
-            current++;
-
-            int16_t x2 = copy[current++] + offsetX;
-            int16_t y2 = copy[current++] + offsetY;
-            current++;
-
-            int16_t x3 = copy[current++] + offsetX;
-            int16_t y3 = copy[current++] + offsetY;
-            current++;
-
-            arduboy.fillTriangle(x1, y1, x2, y2, x3, y3, color);
-        }
+    int16_t count = (int16_t)model[0];
+    count*=3;
+    count++;
+    memcpy(copy, model, count*sizeof(float));
+    drawModel(xAngle, yAngle, zAngle, color);
 
 #ifdef PROFILE
-        microseconds end = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
-        printf("Microseconds %lld\n", end.count()-start.count());
+    microseconds end = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
+    printf("Microseconds %lld\n", end.count()-start.count());
 #endif
+}
+
+void Models::drawCompressedModel(const uint8_t* model, const float* map, int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color)
+{
+#ifdef PROFILE
+    microseconds start = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
+#endif
+    int16_t count = (int16_t)map[0];
+    count*=3;
+    count++;
+
+    copy[0] = map[0];
+    int32_t ndx = 0;
+    while(ndx < count)
+    {
+        copy[ndx+1] = map[model[ndx]];
+        ndx++;
+    }
+
+    drawModel(xAngle, yAngle, zAngle, color);
+
+#ifdef PROFILE
+    microseconds end = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
+    printf("Microseconds %lld\n", end.count()-start.count());
+#endif
+}
+
+void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color)
+{
+    int16_t current = 1;
+    int32_t count = (int16_t)copy[0];
+
+    param A, B;
+    char buffer[128];
+    int32_t valueSize, shapeSize;
+    rotationEntry(yAngle, A, Y);
+    while(count--)
+    {
+        int16_t start = current;
+        memset(buffer, '\0', 128);
+        sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
+        parseEntry(buffer, B, valueSize, shapeSize);
+        float C[(int32_t)(A.shape[0]*B.shape[1])];
+        TensorPort(A, B, C);
+        copy[start]     = C[0];
+        copy[start + 1] = C[1];
+        copy[start + 2] = C[2];
+    }
+
+    current = 1;
+    count = (int16_t)copy[0];
+    param D, E;
+    rotationEntry(xAngle, D, X);
+    while(count--)
+    {
+        int16_t start = current;
+        sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
+        parseEntry(buffer, E, valueSize, shapeSize);
+        float F[(int32_t)(D.shape[0]*E.shape[1])];
+        TensorPort(D, E, F);
+        copy[start]     = F[0];
+        copy[start + 1] = F[1];
+        copy[start + 2] = F[2];
+    }
+
+    current = 1;
+    count = (int16_t)copy[0];
+    param G, H;
+    rotationEntry(zAngle, G, Z);
+    while(count--)
+    {
+        int16_t start = current;
+        sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
+        parseEntry(buffer, H, valueSize, shapeSize);
+        float I[(int32_t)(G.shape[0]*H.shape[1])];
+        TensorPort(G, H, I);
+        copy[start]     = I[0];
+        copy[start + 1] = I[1];
+        copy[start + 2] = I[2];
+    }
+
+    current = 1;
+    count = (int16_t)copy[0];
+    while(count--)
+    {
+        param J, K;
+        int16_t start = current;
+        parseEntry(ortho, J, valueSize, shapeSize);
+        sprintf(buffer, "[%.8f, %.8f, %.8f, 1.0], name='vertex', shape=[4,1]\n", copy[current++], copy[current++], copy[current++]);
+        parseEntry(buffer, K, valueSize, shapeSize);
+        float L[(int32_t)(J.shape[0]*K.shape[1])];
+        TensorPort(J, K, L);
+        copy[start]     = L[0];
+        copy[start + 1] = L[1];
+        copy[start + 2] = L[2];
+    }
+
+    int8_t offsetX = WIDTH/2;
+    int8_t offsetY = HEIGHT/2;
+
+    current = 1;
+    count = (int16_t)copy[0];
+    while(count-=3)
+    {
+        int16_t x1 = copy[current++] + offsetX;
+        int16_t y1 = copy[current++] + offsetY;
+        current++;
+        int16_t x2 = copy[current++] + offsetX;
+        int16_t y2 = copy[current++] + offsetY;
+        current++;
+        int16_t x3 = copy[current++] + offsetX;
+        int16_t y3 = copy[current++] + offsetY;
+        current++;
+        arduboy.fillTriangle(x1, y1, x2, y2, x3, y3, color);
+    }
 }
