@@ -51,6 +51,12 @@ struct param
     float value[BUFFER_SIZE];
     float shape[BUFFER_SIZE];
     char name[BUFFER_SIZE];
+
+    param()
+    {
+        memset(value, '\0', sizeof(float)*BUFFER_SIZE);
+        memset(shape, '\0', sizeof(float)*BUFFER_SIZE);
+    }
 };
 
 void TensorPort(const param& A, const param& B, float* C)
@@ -77,26 +83,29 @@ void rotationEntry(const int16_t angle, param& parameter, rotation_axis axis)
     {
         case X:
             parameter.value[0] = 1;
+/*
             parameter.value[1] = 0;
             parameter.value[2] = 0;
             parameter.value[3] = 0;
+*/
             parameter.value[4] = cos(radians);
             parameter.value[5] = sin(radians);
-            parameter.value[6] = 0;
+//            parameter.value[6] = 0;
             parameter.value[7] = -sin(radians);
             parameter.value[8] = cos(radians);
             break;
         case Y:
             parameter.value[0] = cos(radians);
-            parameter.value[1] = 0;
+//            parameter.value[1] = 0;
             parameter.value[2] = -sin(radians);
-            parameter.value[3] = 0;
+//            parameter.value[3] = 0;
             parameter.value[4] = 1;
-            parameter.value[5] = 0;
+//            parameter.value[5] = 0;
             parameter.value[6] = sin(radians);
-            parameter.value[7] = 0;
+//            parameter.value[7] = 0;
             parameter.value[8] = cos(radians);
             break;
+/*
         case Z:
             parameter.value[0] = cos(radians);
             parameter.value[1] = sin(radians);
@@ -108,11 +117,12 @@ void rotationEntry(const int16_t angle, param& parameter, rotation_axis axis)
             parameter.value[7] = 0;
             parameter.value[8] = 1;
             break;
+*/
         default:
             break;
     }
 }
-
+/*
 void parseEntry(const char* cursor, param& parameter, int32_t& valueSize, int32_t& shapeSize)
 {
     valueSize = 0;
@@ -219,8 +229,16 @@ void parseEntry(const char* cursor, param& parameter, int32_t& valueSize, int32_
         cursor++;
     }
 }
+*/
 
-const char* ortho = "[1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0], name='plane', shape=[4,4]";
+float ortho[4][4] =
+{
+    {1.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 1.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+};
+//const char* ortho = "[1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0], name='plane', shape=[4,4]";
 
 struct vertex
 {
@@ -293,8 +311,13 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
     {
         int16_t start = current;
         memset(buffer, '\0', 128);
-        sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
-        parseEntry(buffer, B, valueSize, shapeSize);
+//        sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
+//        parseEntry(buffer, B, valueSize, shapeSize);
+        B.value[2] = copy[current++];
+        B.value[1] = copy[current++];
+        B.value[0] = copy[current++];
+        B.shape[0] = 3;
+        B.shape[1] = 1;
         float C[(int32_t)(A.shape[0]*B.shape[1])];
         TensorPort(A, B, C);
         copy[start]     = C[0];
@@ -309,8 +332,13 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
     while(count--)
     {
         int16_t start = current;
-        sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
-        parseEntry(buffer, E, valueSize, shapeSize);
+//        sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
+//        parseEntry(buffer, E, valueSize, shapeSize);
+        E.value[2] = copy[current++];
+        E.value[1] = copy[current++];
+        E.value[0] = copy[current++];
+        E.shape[0] = 3;
+        E.shape[1] = 1;
         float F[(int32_t)(D.shape[0]*E.shape[1])];
         TensorPort(D, E, F);
         copy[start]     = F[0];
@@ -321,12 +349,29 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
     current = 1;
     count = (int16_t)copy[0];
     param G, H;
-    rotationEntry(zAngle, G, Z);
+//    rotationEntry(zAngle, G, Z);
+//TODO One time initialization
+    G.value[0] = 1;
+//    G.value[1] = 0;
+//    G.value[2] = 0;
+//    G.value[3] = -0;
+    G.value[4] = 1;
+//    G.value[5] = 0;
+//    G.value[6] = 0;
+//    G.value[7] = 0;
+    G.value[8] = 1;
+    G.shape[0] = 3;
+    G.shape[1] = 3;
     while(count--)
     {
         int16_t start = current;
-        sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
-        parseEntry(buffer, H, valueSize, shapeSize);
+//        sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
+//        parseEntry(buffer, H, valueSize, shapeSize);
+        H.value[2] = copy[current++];
+        H.value[1] = copy[current++];
+        H.value[0] = copy[current++];
+        H.shape[0] = 3;
+        H.shape[1] = 1;
         float I[(int32_t)(G.shape[0]*H.shape[1])];
         TensorPort(G, H, I);
         copy[start]     = I[0];
@@ -340,9 +385,21 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
     {
         param J, K;
         int16_t start = current;
-        parseEntry(ortho, J, valueSize, shapeSize);
-        sprintf(buffer, "[%.8f, %.8f, %.8f, 1.0], name='vertex', shape=[4,1]\n", copy[current++], copy[current++], copy[current++]);
-        parseEntry(buffer, K, valueSize, shapeSize);
+//        parseEntry(ortho, J, valueSize, shapeSize);
+//        sprintf(buffer, "[%.8f, %.8f, %.8f, 1.0], name='vertex', shape=[4,1]\n", copy[current++], copy[current++], copy[current++]);
+//        parseEntry(buffer, K, valueSize, shapeSize);
+        K.value[3] = 1.0f;
+        K.value[2] = copy[current++];
+        K.value[1] = copy[current++];
+        K.value[0] = copy[current++];
+        K.shape[0] = 4;
+        K.shape[1] = 1;
+
+//TODO One time initialization
+        J.shape[0] = 4;
+        J.shape[1] = 4;
+        memcpy(J.value, ortho, 16*sizeof(float));
+
         float L[(int32_t)(J.shape[0]*K.shape[1])];
         TensorPort(J, K, L);
         copy[start]     = L[0];
