@@ -229,8 +229,8 @@ struct vertex
     float z;
 };
 
-float copy[4252];
-//float copy[1984];
+//float copy[4252];
+float copy[40];
 
 void Models::drawModel(const float* model, int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color)
 {
@@ -256,17 +256,23 @@ void Models::drawCompressedModel(const uint8_t* model, const float* map, int16_t
 #endif
     int16_t count = (int16_t)map[0];
     count*=3;
-    count++;
 
-    copy[0] = map[0];
+    copy[0] = 3;
     int32_t ndx = 0;
     while(ndx < count)
     {
-        copy[ndx+1] = map[model[ndx]];
-        ndx++;
+        copy[1] = map[model[ndx]];
+        copy[2] = map[model[ndx+1]];
+        copy[3] = map[model[ndx+2]];
+        copy[4] = map[model[ndx+3]];
+        copy[5] = map[model[ndx+4]];
+        copy[6] = map[model[ndx+5]];
+        copy[7] = map[model[ndx+6]];
+        copy[8] = map[model[ndx+7]];
+        copy[9] = map[model[ndx+8]];
+        drawModel(xAngle, yAngle, zAngle, color);
+        ndx+=9;
     }
-
-    drawModel(xAngle, yAngle, zAngle, color);
 
 #ifdef PROFILE
     microseconds end = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
@@ -349,7 +355,7 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
 
     current = 1;
     count = (int16_t)copy[0];
-    while(count-=3)
+    while(current < count*3)
     {
         int16_t x1 = copy[current++] + offsetX;
         int16_t y1 = copy[current++] + offsetY;
