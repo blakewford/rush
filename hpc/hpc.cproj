@@ -20,10 +20,10 @@
     <OverrideVtor>false</OverrideVtor>
     <CacheFlash>true</CacheFlash>
     <ProgFlashFromRam>true</ProgFlashFromRam>
-    <RamSnippetAddress />
+    <RamSnippetAddress>0x20000000</RamSnippetAddress>
     <UncachedRange />
     <preserveEEPROM>true</preserveEEPROM>
-    <OverrideVtorValue />
+    <OverrideVtorValue>exception_table</OverrideVtorValue>
     <BootSegment>2</BootSegment>
     <ResetRule>0</ResetRule>
     <eraseonlaunchrule>0</eraseonlaunchrule>
@@ -385,7 +385,6 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="cli\" />
     <Folder Include="cloud\" />
     <Folder Include="cloud\bsd_adapter\" />
     <Folder Include="cloud\crypto_client\" />
@@ -393,7 +392,6 @@
     <Folder Include="config\" />
     <Folder Include="credentials_storage\" />
     <Folder Include="cryptoauthlib\" />
-    <Folder Include="cryptoauthlib\app\" />
     <Folder Include="cryptoauthlib\lib\" />
     <Folder Include="cryptoauthlib\lib\atcacert\" />
     <Folder Include="cryptoauthlib\lib\basic\" />
@@ -435,9 +433,6 @@
     <Folder Include="winc\spi_flash\source\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cryptoauthlib\app\README.md">
-      <SubType>compile</SubType>
-    </None>
     <None Include="cryptoauthlib\lib\basic\README.md">
       <SubType>compile</SubType>
     </None>
@@ -504,15 +499,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="atmel_start.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="banner.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="cli\cli.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="cli\cli.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="cloud\bsd_adapter\bsdWINC.c">
@@ -887,12 +873,6 @@
     <Compile Include="include\usart_basic.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="led.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="led.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
@@ -921,12 +901,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="mqtt\mqtt_packetTransfer_interface.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sensors_handling.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sensors_handling.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\adc_basic.c">

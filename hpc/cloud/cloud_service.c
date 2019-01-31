@@ -46,7 +46,6 @@
 
 #include "application_manager.h"
 #include "credentials_storage/credentials_storage.h"
-#include "led.h"
 #include "mqtt/mqtt_packetTransfer_interface.h"
 
 static bool cloudInitialized = false;

@@ -51,13 +51,4 @@
 
 // </h>
 
-// <h> CLI Support
-
-// <q> Enable CLI:
-// <i> Check to enable cli
-// <id> enable_cli
-#define CFG_ENABLE_CLI 1
-
-// </h>
-
 #endif // IOT_SENSOR_NODE_CONFIG_H

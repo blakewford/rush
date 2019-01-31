@@ -22,7 +22,6 @@
 #include "cli/cli.h"
 #endif
 #include "credentials_storage/credentials_storage.h"
-#include "led.h"
 #include "debug_print.h"
 
 #define MAIN_DATATASK_INTERVAL 100
@@ -43,12 +42,6 @@ void application_init()
 
 	// Initialization of modules before interrupts are enabled
 	atmel_start_init();
-
-	LED_test();
-#if CFG_ENABLE_CLI
-	CLI_init();
-	CLI_setdeviceId(attDeviceID);
-#endif
 	debug_init(attDeviceID);
 	// Default not to EEPROM value but to NONE
 	// debug_setSeverity(CREDENTIALS_STORAGE_getDebugSeverity());
@@ -86,9 +79,6 @@ void application_init()
 			break;
 		}
 	}
-#if CFG_ENABLE_CLI
-	CLI_setdeviceId(attDeviceID);
-#endif
 	debug_setPrefix(attDeviceID);
 
 	uint8_t mode = SW0_get_level();
@@ -99,8 +89,6 @@ void application_init()
 		CLOUD_init(attDeviceID);
 		scheduler_timeout_create(&MAIN_dataTasksTimer, MAIN_DATATASK_INTERVAL);
 	}
-
-	LED_test();
 }
 
 // React to the WIFI state change here. Status of 1 means connected, Status of 0 means disconnected

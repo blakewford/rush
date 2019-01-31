@@ -29,15 +29,15 @@ SOFTWARE.
 #include <string.h>
 #include <stdlib.h>
 #include "application_manager.h"
-#include "led.h"
-#include "sensors_handling.h"
 #include "cloud/cloud_service.h"
 #include "debug_print.h"
+#include "adc_basic.h"
+
+#define LIGHT_SENSOR_ADC_CHANNEL 5
 
 // This handles messages published from the MQTT server when subscribed
 void receivedFromCloud(uint8_t *topic, uint8_t *payload)
 {
-	LED_flashRed();
 	debug_printer(SEVERITY_NONE, LEVEL_NORMAL, "topic: %s", topic);
 	debug_printer(SEVERITY_NONE, LEVEL_NORMAL, "payload: %s", payload);
 }
@@ -48,16 +48,13 @@ void sendToCloud(void)
 	static char json[70];
 
 	// This part runs every CFG_SEND_INTERVAL seconds
-	int rawTemperature = SENSORS_getTempValue();
-	int light          = SENSORS_getLightValue();
+	int light = ADC_0_get_conversion(LIGHT_SENSOR_ADC_CHANNEL);
 	int len
-	    = sprintf(json, "{\"Light\":%d,\"Temp\":\"%d.%02d\"}", light, rawTemperature / 100, abs(rawTemperature) % 100);
+	    = sprintf(json, "{\"FPS\":%d,\"Vertices\":\"%d\"}", light, light%3);
 
 	if (len > 0) {
 		CLOUD_publishData((uint8_t *)json, len);
 	}
-
-	LED_flashYellow();
 }
 
 int main(void)

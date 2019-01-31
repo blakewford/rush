@@ -48,8 +48,6 @@ typedef enum { SEVERITY_NONE, SEVERITY_WARNING, SEVERITY_NOTICE, SEVERITY_INFO, 
 
 typedef enum { LEVEL_NORMAL, LEVEL_GOOD, LEVEL_BAD, LEVEL_ERROR } debug_errorLevel_t;
 
-#include "banner.h"
-
 #define IOT_DEBUG_PRINT CFG_DEBUG_MSG
 
 void debug_printer(debug_severity_t debug_severity, debug_errorLevel_t error_level, char *format, ...);
