@@ -3,3 +3,6 @@ tools/gen
 rush
 avr-rush
 rush.hex
+.vs
+hpc/Debug
+hpc/Release
