@@ -42,16 +42,17 @@ void receivedFromCloud(uint8_t *topic, uint8_t *payload)
 	debug_printer(SEVERITY_NONE, LEVEL_NORMAL, "payload: %s", payload);
 }
 
+int instrCount = 0;
+
 // This will get called every 1 second only while we have a valid Cloud connection
 void sendToCloud(void)
 {
 	static char json[70];
 
-	// This part runs every CFG_SEND_INTERVAL seconds
 	int light = ADC_0_get_conversion(LIGHT_SENSOR_ADC_CHANNEL);
 	int len
-	    = sprintf(json, "{\"FPS\":%d,\"Vertices\":\"%d\"}", light, light%3);
-
+	    = sprintf(json, "{\"FPS\":%d,\"Vertices\":\"%d\"}", light, instrCount*1024);
+	
 	if (len > 0) {
 		CLOUD_publishData((uint8_t *)json, len);
 	}
@@ -59,9 +60,24 @@ void sendToCloud(void)
 
 int main(void)
 {
-	application_init();
+    application_init();
 
-	while (1) {
+    TCA0.SINGLE.PER = ~0;
+    while(true)
+    {
+        TCA0.SINGLE.CTRLA |= (TCA_SINGLE_CLKSEL_DIV1024_gc) | (TCA_SINGLE_ENABLE_bm);
+
+        uint32_t count = 2048;
+        count *= 1000;
+        while(count--)
+        {
+            asm("nop");
+		}
+
+        TCA0.SINGLE.CTRLA &= ~TCA_SINGLE_ENABLE_bm;
+        instrCount = TCA0.SINGLE.CNT;
+        TCA0.SINGLE.CNT = 0;
+
 		runScheduler();
 	}
 
