@@ -42,7 +42,7 @@ void receivedFromCloud(uint8_t *topic, uint8_t *payload)
 	debug_printer(SEVERITY_NONE, LEVEL_NORMAL, "payload: %s", payload);
 }
 
-int instrCount = 0;
+uint32_t instrCount = 0;
 
 // This will get called every 1 second only while we have a valid Cloud connection
 void sendToCloud(void)
@@ -51,8 +51,8 @@ void sendToCloud(void)
 
 	int light = ADC_0_get_conversion(LIGHT_SENSOR_ADC_CHANNEL);
 	int len
-	    = sprintf(json, "{\"FPS\":%d,\"Vertices\":\"%d\"}", light, instrCount*1024);
-	
+//	    = sprintf(json, "{\"FPS\":%d,\"Vertices\":\"%lu\"}", light, instrCount*1024); Visuals clip at 100K
+	    = sprintf(json, "{\"FPS\":%d,\"Vertices\":\"%lu\"}", light, instrCount);	
 	if (len > 0) {
 		CLOUD_publishData((uint8_t *)json, len);
 	}
