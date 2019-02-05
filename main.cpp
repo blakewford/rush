@@ -11,6 +11,8 @@ void* RenderThread(void* buffer);
 const bool gKeepGoing = true;
 #endif
 
+#include "model/Models.cpp"
+
 void setup();
 void loop();
 

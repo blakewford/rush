@@ -1,5 +1,5 @@
 CC=g++
-SRC=model/Models.cpp main.cpp
+SRC=main.cpp
 EXTRA=engine/engine.cpp -lSDL2 -DPROGMEM= -O3
 GAME=rush
 TARGET=atmega32u4

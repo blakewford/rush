@@ -17,7 +17,7 @@ const int32_t F_CPU = 16000000;
 void delay(uint32_t ms);
 long random(long howsmall, long howbig);
 
-enum
+enum: int8_t
 {
     LEFT_BUTTON,
     RIGHT_BUTTON,

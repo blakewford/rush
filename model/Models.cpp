@@ -24,6 +24,7 @@ namespace xla
     }
 }
 
+/*
 namespace std
 {
     void swap(long long& A, long long& B)
@@ -33,10 +34,23 @@ namespace std
         B = C;
     }
 }
+*/
+
+namespace std
+{
+    // Used exclusively by TensorFlow to swap matrix dimensions
+    // Extremely limited in our case
+    void swap(long long& A, long long& B)
+    {
+        int8_t C = (int8_t)A;
+        A = (int8_t)B;
+        B = C;
+    }
+}
 
 #include "runtime_single_threaded_matmul.cc"
 
-enum parse_state
+enum parse_state: int8_t
 {
     CONSTANTS,
     SHAPE,
@@ -50,19 +64,15 @@ void TensorPort(const param& A, const param& B, float* C)
     MatMul(NULL, C, (float*)A.value, (float*)B.value, A.shape[0], B.shape[1], A.shape[1], true, true);
 }
 
-enum rotation_axis
-{
-    X,
-    Y,
-    Z
-};
-
 void rotationEntry(const int16_t angle, param& parameter, rotation_axis axis)
 {
     const float radians = (angle%360)*0.0174533;
 
-    parameter.shape[0] = 3;
+//    parameter.shape[0] = 3;
     parameter.shape[1] = 3;
+
+    const float sine = sin(radians);
+    const float cosine = cos(radians);
 
     switch(axis)
     {
@@ -73,22 +83,22 @@ void rotationEntry(const int16_t angle, param& parameter, rotation_axis axis)
             parameter.value[2] = 0;
             parameter.value[3] = 0;
 */
-            parameter.value[4] = cos(radians);
-            parameter.value[5] = sin(radians);
+            parameter.value[4] = cosine;
+            parameter.value[5] = sine;
 //            parameter.value[6] = 0;
-            parameter.value[7] = -sin(radians);
-            parameter.value[8] = cos(radians);
+            parameter.value[7] = -sine;
+            parameter.value[8] = cosine;
             break;
         case Y:
-            parameter.value[0] = cos(radians);
+            parameter.value[0] = cosine;
 //            parameter.value[1] = 0;
-            parameter.value[2] = -sin(radians);
+            parameter.value[2] = -sine;
 //            parameter.value[3] = 0;
             parameter.value[4] = 1;
 //            parameter.value[5] = 0;
-            parameter.value[6] = sin(radians);
+            parameter.value[6] = sine;
 //            parameter.value[7] = 0;
-            parameter.value[8] = cos(radians);
+            parameter.value[8] = cosine;
             break;
 /*
         case Z:
@@ -248,7 +258,7 @@ void Models::begin()
 //    s_zAngle.value[6] = 0;
 //    s_zAngle.value[7] = 0;
     s_zAngle.value[8] = 1;
-    s_zAngle.shape[0] = 3;
+ //   s_zAngle.shape[0] = 3;
     s_zAngle.shape[1] = 3;
 
     s_Ortho.shape[0] = 4;
@@ -282,7 +292,7 @@ void Models::drawCompressedModel(const uint8_t* model, const float* map, int16_t
     count*=3;
 
     copy[0] = 3;
-    int32_t ndx = 0;
+    int16_t ndx = 0;
     while(ndx < count)
     {
         copy[1] = map[model[ndx]];
@@ -304,66 +314,48 @@ void Models::drawCompressedModel(const uint8_t* model, const float* map, int16_t
 #endif
 }
 
-void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color)
+void Models::modifyAngle(const int16_t angle, const rotation_axis axis)
 {
-    int16_t current = 1;
-    int32_t count = (int16_t)copy[0];
-
     param A, B;
-    char buffer[128];
-    int32_t valueSize, shapeSize;
-    rotationEntry(yAngle, A, Y);
+    int16_t current = 1;
+    int16_t count = (int16_t)copy[0];
+
+
+    rotationEntry(angle, A, axis);
     while(count--)
     {
         int16_t start = current;
-        memset(buffer, '\0', 128);
         B.value[2] = copy[current++];
         B.value[1] = copy[current++];
         B.value[0] = copy[current++];
-        B.shape[0] = 3;
-        B.shape[1] = 1;
-        float C[(int32_t)(A.shape[0]*B.shape[1])];
+//        B.shape[0] = 3;
+//        B.shape[1] = 1;
+        float C[(int8_t)(A.shape[0]*B.shape[1])];
         TensorPort(A, B, C);
-        copy[start]     = C[0];
-        copy[start + 1] = C[1];
-        copy[start + 2] = C[2];
+        memcpy(&copy[start], &C[0], 3*sizeof(float));
     }
+}
 
-    current = 1;
-    count = (int16_t)copy[0];
-    param D, E;
-    rotationEntry(xAngle, D, X);
-    while(count--)
-    {
-        int16_t start = current;
-        E.value[2] = copy[current++];
-        E.value[1] = copy[current++];
-        E.value[0] = copy[current++];
-        E.shape[0] = 3;
-        E.shape[1] = 1;
-        float F[(int32_t)(D.shape[0]*E.shape[1])];
-        TensorPort(D, E, F);
-        copy[start]     = F[0];
-        copy[start + 1] = F[1];
-        copy[start + 2] = F[2];
-    }
+void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color)
+{
+    modifyAngle(yAngle, Y);
+    modifyAngle(xAngle, X);
+//    modifyAngle(zAngle, Z);
 
-    current = 1;
-    count = (int16_t)copy[0];
     param H;
+    int16_t current = 1;
+    int16_t count = (int16_t)copy[0];
     while(count--)
     {
         int16_t start = current;
         H.value[2] = copy[current++];
         H.value[1] = copy[current++];
         H.value[0] = copy[current++];
-        H.shape[0] = 3;
-        H.shape[1] = 1;
-        float I[(int32_t)(s_zAngle.shape[0]*H.shape[1])];
+//        H.shape[0] = 3;
+//        H.shape[1] = 1;
+        float I[(int8_t)(s_zAngle.shape[0]*H.shape[1])];
         TensorPort(s_zAngle, H, I);
-        copy[start]     = I[0];
-        copy[start + 1] = I[1];
-        copy[start + 2] = I[2];
+        memcpy(&copy[start], &I[0], 3*sizeof(float));
     }
 
     current = 1;
@@ -377,13 +369,11 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
         K.value[1] = copy[current++];
         K.value[0] = copy[current++];
         K.shape[0] = 4;
-        K.shape[1] = 1;
+//        K.shape[1] = 1;
 
-        float L[(int32_t)(s_Ortho.shape[0]*K.shape[1])];
+        float L[(int8_t)(s_Ortho.shape[0]*K.shape[1])];
         TensorPort(s_Ortho, K, L);
-        copy[start]     = L[0];
-        copy[start + 1] = L[1];
-        copy[start + 2] = L[2];
+        memcpy(&copy[start], &L[0], 3*sizeof(float));
     }
 
     int8_t offsetX = WIDTH/2;
