@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #include "Sprites.h"
 #include "Arduboy2Audio.h"
 

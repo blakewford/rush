@@ -18,6 +18,14 @@ void CLOUD_init(char *deviceId);
 void CLOUD_subscribe(void);
 void CLOUD_disconnect(void);
 bool CLOUD_isConnected(void);
-void CLOUD_publishData(uint8_t *data, unsigned int len);
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+    void CLOUD_publishData(uint8_t *data, unsigned int len);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CLOUD_SERVICE_H_ */

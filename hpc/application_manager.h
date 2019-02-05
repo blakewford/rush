@@ -15,7 +15,15 @@ struct shared_networking_params {
 };
 extern struct shared_networking_params shared_networking_params;
 
-void application_init(void);
-void runScheduler(void);
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+	void application_init(void);
+	void runScheduler(void);
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* APPLICATION_MANAGER_H_ */

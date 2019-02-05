@@ -28,18 +28,27 @@ SOFTWARE.
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "Arduboy2.h"
 #include "application_manager.h"
 #include "cloud/cloud_service.h"
 #include "debug_print.h"
 #include "adc_basic.h"
 
+#include "RUSH/RUSH.ino"
+
+const bool gKeepGoing = true;
+extern Arduboy2Base arduboy;
+
 #define LIGHT_SENSOR_ADC_CHANNEL 5
+
+extern "C"
+{
 
 // This handles messages published from the MQTT server when subscribed
 void receivedFromCloud(uint8_t *topic, uint8_t *payload)
 {
-	debug_printer(SEVERITY_NONE, LEVEL_NORMAL, "topic: %s", topic);
-	debug_printer(SEVERITY_NONE, LEVEL_NORMAL, "payload: %s", payload);
+//	debug_printer(SEVERITY_NONE, LEVEL_NORMAL, "topic: %s", topic);
+//	debug_printer(SEVERITY_NONE, LEVEL_NORMAL, "payload: %s", payload);
 }
 
 uint32_t instrCount = 0;
@@ -49,7 +58,7 @@ void sendToCloud(void)
 {
 	static char json[70];
 
-	int light = ADC_0_get_conversion(LIGHT_SENSOR_ADC_CHANNEL);
+	int light = ADC_0_get_conversion((adc_0_channel_t)LIGHT_SENSOR_ADC_CHANNEL);
 	int len
 //	    = sprintf(json, "{\"FPS\":%d,\"Vertices\":\"%lu\"}", light, instrCount*1024); Visuals clip at 100K
 	    = sprintf(json, "{\"FPS\":%d,\"Vertices\":\"%lu\"}", light, instrCount);	
@@ -62,8 +71,11 @@ int main(void)
 {
     application_init();
 
+	arduboy.clear();
+	setup();
+
     TCA0.SINGLE.PER = ~0;
-    while(true)
+    while(gKeepGoing)
     {
         TCA0.SINGLE.CTRLA |= (TCA_SINGLE_CLKSEL_DIV1024_gc) | (TCA_SINGLE_ENABLE_bm);
 
@@ -73,6 +85,7 @@ int main(void)
         {
             asm("nop");
 		}
+//		    loop();
 
         TCA0.SINGLE.CTRLA &= ~TCA_SINGLE_ENABLE_bm;
         instrCount = TCA0.SINGLE.CNT;
@@ -82,4 +95,5 @@ int main(void)
 	}
 
 	return 0;
+}
 }
