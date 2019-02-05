@@ -34,7 +34,7 @@ SOFTWARE.
 #include "debug_print.h"
 #include "adc_basic.h"
 
-#include "RUSH/RUSH.ino"
+#include "../RUSH/RUSH.ino"
 
 const bool gKeepGoing = true;
 extern Arduboy2Base arduboy;
@@ -79,13 +79,7 @@ int main(void)
     {
         TCA0.SINGLE.CTRLA |= (TCA_SINGLE_CLKSEL_DIV1024_gc) | (TCA_SINGLE_ENABLE_bm);
 
-        uint32_t count = 2048;
-        count *= 1000;
-        while(count--)
-        {
-            asm("nop");
-		}
-//		    loop();
+        loop();
 
         TCA0.SINGLE.CTRLA &= ~TCA_SINGLE_ENABLE_bm;
         instrCount = TCA0.SINGLE.CNT;

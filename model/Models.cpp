@@ -1,6 +1,7 @@
 #include <math.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -243,8 +244,8 @@ struct vertex
 
 float copy[40];
 
-static param Models::s_Ortho;
-static param Models::s_zAngle;
+param Models::s_Ortho;
+param Models::s_zAngle;
 
 void Models::begin()
 {

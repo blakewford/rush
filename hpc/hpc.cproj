@@ -321,8 +321,14 @@
       <Value>../../RUSH</Value>
       <Value>../../model</Value>
       <Value>../../../tensorflow</Value>
+      <Value>../../model/eigen</Value>
+      <Value>../../model/port</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
+  <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcccpp.compiler.warnings.InhibitAllWarnings>True</avrgcccpp.compiler.warnings.InhibitAllWarnings>
+  <avrgcccpp.compiler.miscellaneous.OtherFlags>-std=c++11 -include ../model/port/port.h -include ../model/port/sys/types.h -fno-threadsafe-statics -lprintf_flt</avrgcccpp.compiler.miscellaneous.OtherFlags>
+  <avrgcccpp.linker.general.UseVprintfLibrary>True</avrgcccpp.linker.general.UseVprintfLibrary>
   <avrgcccpp.assembler.general.IncludePaths>
     <ListValues>
       <Value>../utils</Value>
@@ -437,6 +443,10 @@
     <Folder Include="winc\spi_flash\source\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\RUSH\RUSH.ino">
+      <SubType>compile</SubType>
+      <Link>rush\RUSH.ino</Link>
+    </None>
     <None Include="cryptoauthlib\lib\basic\README.md">
       <SubType>compile</SubType>
     </None>
@@ -491,11 +501,20 @@
     <None Include="doxygen\usart_basic.dox">
       <SubType>compile</SubType>
     </None>
-    <None Include="rush\RUSH.ino">
-      <SubType>compile</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\engine\Arduboy2.cpp">
+      <SubType>compile</SubType>
+      <Link>rush\Arduboy2.cpp</Link>
+    </Compile>
+    <Compile Include="..\model\Models.cpp">
+      <SubType>compile</SubType>
+      <Link>rush\Models.cpp</Link>
+    </Compile>
+    <Compile Include="..\model\port.c">
+      <SubType>compile</SubType>
+      <Link>rush\port.c</Link>
+    </Compile>
     <Compile Include="application_manager.c">
       <SubType>compile</SubType>
     </Compile>
@@ -908,9 +927,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="mqtt\mqtt_packetTransfer_interface.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rush\Arduboy2.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\adc_basic.c">
