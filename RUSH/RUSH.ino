@@ -15,6 +15,7 @@ void setup()
 {
   arduboy.begin();
   arduboy.setFrameRate(60);
+  models.begin();
 }
 
 int16_t yAngle = 0;

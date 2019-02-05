@@ -36,27 +36,12 @@ namespace std
 
 #include "runtime_single_threaded_matmul.cc"
 
-#define BUFFER_SIZE 16
-
 enum parse_state
 {
     CONSTANTS,
     SHAPE,
     NAME,
     UNKNOWN
-};
-
-struct param
-{
-    float value[BUFFER_SIZE];
-    float shape[BUFFER_SIZE];
-    char name[BUFFER_SIZE];
-
-    param()
-    {
-        memset(value, '\0', sizeof(float)*BUFFER_SIZE);
-        memset(shape, '\0', sizeof(float)*BUFFER_SIZE);
-    }
 };
 
 void TensorPort(const param& A, const param& B, float* C)
@@ -238,7 +223,6 @@ float ortho[4][4] =
     {0.0f, 0.0f, 0.0f, 0.0f},
     {0.0f, 0.0f, 0.0f, 1.0f},
 };
-//const char* ortho = "[1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0], name='plane', shape=[4,4]";
 
 struct vertex
 {
@@ -247,8 +231,30 @@ struct vertex
     float z;
 };
 
-//float copy[4252];
 float copy[40];
+
+static param Models::s_Ortho;
+static param Models::s_zAngle;
+
+void Models::begin()
+{
+//    rotationEntry(zAngle, s_zAngle, Z);
+    s_zAngle.value[0] = 1;
+//    s_zAngle.value[1] = 0;
+//    s_zAngle.value[2] = 0;
+//    s_zAngle.value[3] = -0;
+    s_zAngle.value[4] = 1;
+//    s_zAngle.value[5] = 0;
+//    s_zAngle.value[6] = 0;
+//    s_zAngle.value[7] = 0;
+    s_zAngle.value[8] = 1;
+    s_zAngle.shape[0] = 3;
+    s_zAngle.shape[1] = 3;
+
+    s_Ortho.shape[0] = 4;
+    s_Ortho.shape[1] = 4;
+    memcpy(s_Ortho.value, ortho, 16*sizeof(float));
+}
 
 void Models::drawModel(const float* model, int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color)
 {
@@ -311,8 +317,6 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
     {
         int16_t start = current;
         memset(buffer, '\0', 128);
-//        sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
-//        parseEntry(buffer, B, valueSize, shapeSize);
         B.value[2] = copy[current++];
         B.value[1] = copy[current++];
         B.value[0] = copy[current++];
@@ -332,8 +336,6 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
     while(count--)
     {
         int16_t start = current;
-//        sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
-//        parseEntry(buffer, E, valueSize, shapeSize);
         E.value[2] = copy[current++];
         E.value[1] = copy[current++];
         E.value[0] = copy[current++];
@@ -348,32 +350,17 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
 
     current = 1;
     count = (int16_t)copy[0];
-    param G, H;
-//    rotationEntry(zAngle, G, Z);
-//TODO One time initialization
-    G.value[0] = 1;
-//    G.value[1] = 0;
-//    G.value[2] = 0;
-//    G.value[3] = -0;
-    G.value[4] = 1;
-//    G.value[5] = 0;
-//    G.value[6] = 0;
-//    G.value[7] = 0;
-    G.value[8] = 1;
-    G.shape[0] = 3;
-    G.shape[1] = 3;
+    param H;
     while(count--)
     {
         int16_t start = current;
-//        sprintf(buffer, "[%.8f, %.8f, %.8f], name='vertex', shape=[3,1]\n", copy[current++], copy[current++], copy[current++]);
-//        parseEntry(buffer, H, valueSize, shapeSize);
         H.value[2] = copy[current++];
         H.value[1] = copy[current++];
         H.value[0] = copy[current++];
         H.shape[0] = 3;
         H.shape[1] = 1;
-        float I[(int32_t)(G.shape[0]*H.shape[1])];
-        TensorPort(G, H, I);
+        float I[(int32_t)(s_zAngle.shape[0]*H.shape[1])];
+        TensorPort(s_zAngle, H, I);
         copy[start]     = I[0];
         copy[start + 1] = I[1];
         copy[start + 2] = I[2];
@@ -383,11 +370,8 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
     count = (int16_t)copy[0];
     while(count--)
     {
-        param J, K;
+        param K;
         int16_t start = current;
-//        parseEntry(ortho, J, valueSize, shapeSize);
-//        sprintf(buffer, "[%.8f, %.8f, %.8f, 1.0], name='vertex', shape=[4,1]\n", copy[current++], copy[current++], copy[current++]);
-//        parseEntry(buffer, K, valueSize, shapeSize);
         K.value[3] = 1.0f;
         K.value[2] = copy[current++];
         K.value[1] = copy[current++];
@@ -395,13 +379,8 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
         K.shape[0] = 4;
         K.shape[1] = 1;
 
-//TODO One time initialization
-        J.shape[0] = 4;
-        J.shape[1] = 4;
-        memcpy(J.value, ortho, 16*sizeof(float));
-
-        float L[(int32_t)(J.shape[0]*K.shape[1])];
-        TensorPort(J, K, L);
+        float L[(int32_t)(s_Ortho.shape[0]*K.shape[1])];
+        TensorPort(s_Ortho, K, L);
         copy[start]     = L[0];
         copy[start + 1] = L[1];
         copy[start + 2] = L[2];
