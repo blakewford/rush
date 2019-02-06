@@ -12,19 +12,6 @@ extern Arduboy2Base arduboy;
 
 //#define PROFILE
 
-namespace xla
-{
-    void EigenMatVecF32(float* out, float* lhs, float* rhs, int8_t m, int8_t n, int8_t k)
-    {
-        assert(0);
-    }
-
-    void EigenMatVecF64(double* out, double* lhs, double* rhs, int8_t m, int8_t n, int8_t k)
-    {
-        assert(0);
-    }
-}
-
 /*
 namespace std
 {
@@ -36,18 +23,6 @@ namespace std
     }
 }
 */
-
-namespace std
-{
-    // Used exclusively by TensorFlow to swap matrix dimensions
-    // Extremely limited in our case
-    void swap(int8_t& A, int8_t& B)
-    {
-        int8_t C = A;
-        A = B;
-        B = C;
-    }
-}
 
 #include "runtime_single_threaded_matmul.cc"
 
@@ -63,7 +38,7 @@ void TensorPort(const param& A, const param& B, float* C)
 {
     assert(A.shape[1] == B.shape[0]);
 //    MatMul(NULL, C, (float*)A.value, (float*)B.value, A.shape[0], B.shape[1], A.shape[1], true, true);
-    MatMul(NULL, C, (float*)A.value, (float*)B.value, A.shape[0], B.shape[1], A.shape[1]);
+    MatMul(C, (float*)A.value, (float*)B.value, A.shape[0]);
 }
 
 void rotationEntry(const int16_t angle, param& parameter, rotation_axis axis)

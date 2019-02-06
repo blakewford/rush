@@ -24,22 +24,13 @@ using tensorflow::int64;
 
 namespace {
 
-template <typename T>
-void MatMul(const void* run_options_ptr, T* out, T* lhs, T* rhs, int8_t m, int8_t n, int8_t k)
+void MatMul(float* out, float* lhs, float* rhs, int8_t m)
 {
-  int8_t lhs_rows = m;
-  int8_t lhs_cols = k;
-  std::swap(lhs_rows, lhs_cols);
+  const Eigen::TensorMap<Eigen::Tensor<const float, 2>, Eigen::Aligned> A(lhs, m, m);
+  const Eigen::TensorMap<Eigen::Tensor<const float, 2>, Eigen::Aligned> B(rhs, 1, m);
+  Eigen::TensorMap<Eigen::Tensor<float, 2>, Eigen::Aligned> C(out, m, 1);
 
-  int8_t rhs_rows = k;
-  int8_t rhs_cols = n;
-  std::swap(rhs_rows, rhs_cols);
-
-  const Eigen::TensorMap<Eigen::Tensor<const T, 2>, Eigen::Aligned> A(lhs, lhs_rows, lhs_cols);
-  const Eigen::TensorMap<Eigen::Tensor<const T, 2>, Eigen::Aligned> B(rhs, rhs_rows, rhs_cols);
-  Eigen::TensorMap<Eigen::Tensor<T, 2>, Eigen::Aligned> C(out, m, n);
-
-  typedef typename Eigen::Tensor<T, 2>::DimensionPair DimPair;
+  typedef typename Eigen::Tensor<float, 2>::DimensionPair DimPair;
 //  int lhs_contract_dim = 0;
 //  int rhs_contract_dim = 1;
   const Eigen::array<DimPair, 1> dims({DimPair(0, 1)});
@@ -51,29 +42,3 @@ void MatMul(const void* run_options_ptr, T* out, T* lhs, T* rhs, int8_t m, int8_
 }
 
 }  // namespace
-
-void __xla_cpu_runtime_EigenSingleThreadedMatMulF32
-(const void* run_options_ptr, float* out, float* lhs, float* rhs, int8_t m, int8_t n, int8_t k)
-{
-    if(m == 1 || n == 1)
-    {
-        xla::EigenMatVecF32(out, lhs, rhs, m, n, k);
-    }
-    else
-    {
-        MatMul<float>(run_options_ptr, out, lhs, rhs, m, n, k);
-    }
-}
-
-void __xla_cpu_runtime_EigenSingleThreadedMatMulF64
-(const void* run_options_ptr, double* out, double* lhs, double* rhs, int8_t m, int8_t n, int8_t k)
-{
-    if(m == 1 || n == 1)
-    {
-      xla::EigenMatVecF64(out, lhs, rhs, m, n, k);
-    }
-    else
-    {
-      MatMul<double>(run_options_ptr, out, lhs, rhs, m, n, k);
-    }
-}
