@@ -297,7 +297,7 @@ template<typename LhsScalar, typename RhsScalar, int KcFactor, typename Index>
 void computeProductBlockingSizes(Index& k, Index& m, Index& n, Index num_threads = 1)
 {
   if (!useSpecificBlockingSizes(k, m, n)) {
-    evaluateProductBlockingSizesHeuristic<LhsScalar, RhsScalar, KcFactor, Index>(k, m, n, num_threads);
+//    evaluateProductBlockingSizesHeuristic<LhsScalar, RhsScalar, KcFactor, Index>(k, m, n, num_threads);
   }
 }
 

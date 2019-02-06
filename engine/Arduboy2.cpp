@@ -1,7 +1,21 @@
+#include <avr/io.h>
 #include <Arduboy2.h>
+
+#define RAND_SEED_IN_ADMUX (_BV(REFS0) | _BV(REFS1) | _BV(MUX0))
 
 void Arduboy2Base::begin()
 {
+    ADMUX = RAND_SEED_IN_ADMUX;
+
+    //bootPins();
+
+    SPCR = _BV(SPE) | _BV(MSTR);
+    SPSR = _BV(SPI2X);
+
+    //bootOLED();
+
+    PRR0 = _BV(PRTWI) | _BV(PRADC);
+    PRR1 |= _BV(PRUSART1);
 }
 
 void Arduboy2Base::setFrameRate(uint8_t rate)
