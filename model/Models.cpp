@@ -10,7 +10,10 @@
 
 extern Arduboy2Base arduboy;
 
-//#define PROFILE
+#ifdef PROFILE
+#include <chrono>
+using namespace std::chrono;
+#endif
 
 /*
 namespace std
@@ -287,7 +290,7 @@ void Models::drawCompressedModel(const uint8_t* model, const float* map, int16_t
 
 #ifdef PROFILE
     microseconds end = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
-    printf("Microseconds %lld\n", end.count()-start.count());
+    printf("%d Vertices %lld Microseconds\n", count, end.count()-start.count());
 #endif
 }
 
