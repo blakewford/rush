@@ -14,12 +14,12 @@ extern Arduboy2Base arduboy;
 
 namespace xla
 {
-    void EigenMatVecF32(float* out, float* lhs, float* rhs, long long m, long long n, long long k, int transpose_lhs, int transpose_rhs)
+    void EigenMatVecF32(float* out, float* lhs, float* rhs, int8_t m, int8_t n, int8_t k)
     {
         assert(0);
     }
 
-    void EigenMatVecF64(double* out, double* lhs, double* rhs, long long m, long long n, long long k, int transpose_lhs, int transpose_rhs)
+    void EigenMatVecF64(double* out, double* lhs, double* rhs, int8_t m, int8_t n, int8_t k)
     {
         assert(0);
     }
@@ -41,10 +41,10 @@ namespace std
 {
     // Used exclusively by TensorFlow to swap matrix dimensions
     // Extremely limited in our case
-    void swap(long long& A, long long& B)
+    void swap(int8_t& A, int8_t& B)
     {
-        int8_t C = (int8_t)A;
-        A = (int8_t)B;
+        int8_t C = A;
+        A = B;
         B = C;
     }
 }
@@ -62,7 +62,8 @@ enum parse_state: int8_t
 void TensorPort(const param& A, const param& B, float* C)
 {
     assert(A.shape[1] == B.shape[0]);
-    MatMul(NULL, C, (float*)A.value, (float*)B.value, A.shape[0], B.shape[1], A.shape[1], true, true);
+//    MatMul(NULL, C, (float*)A.value, (float*)B.value, A.shape[0], B.shape[1], A.shape[1], true, true);
+    MatMul(NULL, C, (float*)A.value, (float*)B.value, A.shape[0], B.shape[1], A.shape[1]);
 }
 
 void rotationEntry(const int16_t angle, param& parameter, rotation_axis axis)

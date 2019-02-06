@@ -25,31 +25,24 @@ using tensorflow::int64;
 namespace {
 
 template <typename T>
-void MatMul(const void* run_options_ptr, T* out, T* lhs, T* rhs, int64 m,
-            int64 n, int64 k, int32 transpose_lhs, int32 transpose_rhs) {
-  int64 lhs_rows = m;
-  int64 lhs_cols = k;
-  if (transpose_lhs) {
-    std::swap(lhs_rows, lhs_cols);
-  }
+void MatMul(const void* run_options_ptr, T* out, T* lhs, T* rhs, int8_t m, int8_t n, int8_t k)
+{
+  int8_t lhs_rows = m;
+  int8_t lhs_cols = k;
+  std::swap(lhs_rows, lhs_cols);
 
-  int64 rhs_rows = k;
-  int64 rhs_cols = n;
-  if (transpose_rhs) {
-    std::swap(rhs_rows, rhs_cols);
-  }
+  int8_t rhs_rows = k;
+  int8_t rhs_cols = n;
+  std::swap(rhs_rows, rhs_cols);
 
-  const Eigen::TensorMap<Eigen::Tensor<const T, 2>, Eigen::Aligned> A(
-      lhs, lhs_rows, lhs_cols);
-  const Eigen::TensorMap<Eigen::Tensor<const T, 2>, Eigen::Aligned> B(
-      rhs, rhs_rows, rhs_cols);
+  const Eigen::TensorMap<Eigen::Tensor<const T, 2>, Eigen::Aligned> A(lhs, lhs_rows, lhs_cols);
+  const Eigen::TensorMap<Eigen::Tensor<const T, 2>, Eigen::Aligned> B(rhs, rhs_rows, rhs_cols);
   Eigen::TensorMap<Eigen::Tensor<T, 2>, Eigen::Aligned> C(out, m, n);
 
   typedef typename Eigen::Tensor<T, 2>::DimensionPair DimPair;
-  int lhs_contract_dim = transpose_lhs ? 0 : 1;
-  int rhs_contract_dim = transpose_rhs ? 1 : 0;
-  const Eigen::array<DimPair, 1> dims(
-      {DimPair(lhs_contract_dim, rhs_contract_dim)});
+//  int lhs_contract_dim = 0;
+//  int rhs_contract_dim = 1;
+  const Eigen::array<DimPair, 1> dims({DimPair(0, 1)});
 
   // Matrix multiply is a special case of the "contract" operation where
   // the contraction is performed along dimension 1 of the lhs and dimension
@@ -59,24 +52,28 @@ void MatMul(const void* run_options_ptr, T* out, T* lhs, T* rhs, int64 m,
 
 }  // namespace
 
-void __xla_cpu_runtime_EigenSingleThreadedMatMulF32(
-    const void* run_options_ptr, float* out, float* lhs, float* rhs, int64 m,
-    int64 n, int64 k, int32 transpose_lhs, int32 transpose_rhs) {
-  if (m == 1 || n == 1) {
-    xla::EigenMatVecF32(out, lhs, rhs, m, n, k, transpose_lhs, transpose_rhs);
-  } else {
-    MatMul<float>(run_options_ptr, out, lhs, rhs, m, n, k, transpose_lhs,
-                  transpose_rhs);
-  }
+void __xla_cpu_runtime_EigenSingleThreadedMatMulF32
+(const void* run_options_ptr, float* out, float* lhs, float* rhs, int8_t m, int8_t n, int8_t k)
+{
+    if(m == 1 || n == 1)
+    {
+        xla::EigenMatVecF32(out, lhs, rhs, m, n, k);
+    }
+    else
+    {
+        MatMul<float>(run_options_ptr, out, lhs, rhs, m, n, k);
+    }
 }
 
-void __xla_cpu_runtime_EigenSingleThreadedMatMulF64(
-    const void* run_options_ptr, double* out, double* lhs, double* rhs, int64 m,
-    int64 n, int64 k, int32 transpose_lhs, int32 transpose_rhs) {
-  if (m == 1 || n == 1) {
-    xla::EigenMatVecF64(out, lhs, rhs, m, n, k, transpose_lhs, transpose_rhs);
-  } else {
-    MatMul<double>(run_options_ptr, out, lhs, rhs, m, n, k, transpose_lhs,
-                   transpose_rhs);
-  }
+void __xla_cpu_runtime_EigenSingleThreadedMatMulF64
+(const void* run_options_ptr, double* out, double* lhs, double* rhs, int8_t m, int8_t n, int8_t k)
+{
+    if(m == 1 || n == 1)
+    {
+      xla::EigenMatVecF64(out, lhs, rhs, m, n, k);
+    }
+    else
+    {
+      MatMul<double>(run_options_ptr, out, lhs, rhs, m, n, k);
+    }
 }
