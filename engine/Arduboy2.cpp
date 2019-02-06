@@ -1,10 +1,13 @@
 #include <avr/io.h>
 #include <Arduboy2.h>
 
+#ifndef _AVR_ATMEGA4808_H_INCLUDED
 #define RAND_SEED_IN_ADMUX (_BV(REFS0) | _BV(REFS1) | _BV(MUX0))
+#endif
 
 void Arduboy2Base::begin()
 {
+#ifndef _AVR_ATMEGA4808_H_INCLUDED
     ADMUX = RAND_SEED_IN_ADMUX;
 
     //bootPins();
@@ -16,6 +19,7 @@ void Arduboy2Base::begin()
 
     PRR0 = _BV(PRTWI) | _BV(PRADC);
     PRR1 |= _BV(PRUSART1);
+#endif
 }
 
 void Arduboy2Base::setFrameRate(uint8_t rate)
