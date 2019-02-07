@@ -134,6 +134,7 @@ void Arduboy2Base::clear()
 
 void Arduboy2Base::display()
 {
+#ifndef _AVR_ATMEGA4808_H_INCLUDED
     for(int i = 0; i < (HEIGHT*WIDTH)/8; i++)
     {
         SPDR = pgm_read_byte(sBuffer[i]);
@@ -141,6 +142,7 @@ void Arduboy2Base::display()
         while(!(SPSR & _BV(SPIF)))
             ;
     }
+#endif
 }
 
 void Arduboy2Base::fillTriangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3, uint8_t color)
