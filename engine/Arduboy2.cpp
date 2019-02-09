@@ -81,7 +81,7 @@ void Arduboy2Base::begin()
 
     for(uint8_t i = 0; i < sizeof(BootLCD); i++)
     {
-        SPDR = pgm_read_byte(BootLCD[i]);
+        SPDR = pgm_read_byte(&BootLCD[i]);
         asm volatile("nop");
         while(!(SPSR & _BV(SPIF)))
             ;
@@ -137,7 +137,7 @@ void Arduboy2Base::display()
 #ifndef _AVR_ATMEGA4808_H_INCLUDED
     for(int i = 0; i < (HEIGHT*WIDTH)/8; i++)
     {
-        SPDR = pgm_read_byte(sBuffer[i]);
+        SPDR = pgm_read_byte(&sBuffer[i]);
         asm volatile("nop");
         while(!(SPSR & _BV(SPIF)))
             ;
