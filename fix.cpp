@@ -14,23 +14,17 @@ const bool gKeepGoing = true;
 
 void init()
 {
-#ifdef _AVR_ATMEGA32U4_H_INCLUDED
+#ifdef __AVR__
+#ifndef _AVR_ATMEGA4808_H_INCLUDED
     sei();
 
     sbi(TCCR0A, WGM01);
     sbi(TCCR0A, WGM00);
-//	sbi(TCCR0, CS01);
-//	sbi(TCCR0, CS00);
     sbi(TCCR0B, CS01);
     sbi(TCCR0B, CS00);
-//	sbi(TIMSK, TOIE0);
-
-//    sbi(TIMSK0, TOIE0);
-
     TCCR1B = 0;
     sbi(TCCR1B, CS11);
     sbi(TCCR1B, CS10);
-//	sbi(TCCR1, CS10);
     sbi(TCCR1A, WGM10);
     sbi(TCCR3B, CS31);
     sbi(TCCR3B, CS30);
@@ -48,9 +42,10 @@ void init()
     cbi(ADCSRA, ADPS1);
     sbi(ADCSRA, ADPS0);
     sbi(ADCSRA, ADEN);
-#elif __AVR__
-    // ATMEGA4808
-#else
+#endif
+#endif
+
+#ifndef __AVR__
     if(SDL_Init() < 0) return;
 #endif
 }

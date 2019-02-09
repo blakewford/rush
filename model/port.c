@@ -5,7 +5,7 @@ void delay(uint32_t milliseconds)
 {
     uint16_t us = (uint16_t)(milliseconds*1000);
     if(us <= 1) return;
-#if _AVR_ATMEGA4808_H_INCLUDED
+#ifdef _AVR_ATMEGA4808_H_INCLUDED
     __asm__ __volatile__
     (
         "nop" "\n\t"
