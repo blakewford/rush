@@ -160,9 +160,53 @@ void Arduboy2Base::display()
 #endif
 }
 
+namespace std
+{
+    template< class T >
+    void swap(T& A, T& B)
+    {
+        T C = A;
+        A = B;
+        B = C;
+    }
+}
+
+void Arduboy2Base::drawFastHLine(int16_t x, int16_t y, uint8_t w, uint8_t color)
+{
+    int16_t xEnd;
+    if(y < 0 || y >= HEIGHT) return;
+
+    xEnd = x + w;
+
+    if(xEnd <= 0 || x >= WIDTH) return;
+    if(x < 0) x = 0;
+    if(xEnd > WIDTH) xEnd = WIDTH;
+    w = xEnd - x;
+
+    register uint8_t *pBuf = sBuffer + ((y / 8) * WIDTH) + x;
+    register uint8_t mask = 1 << (y & 7);
+
+    switch(color)
+    {
+        case 1:
+          while(w--)
+          {
+              *pBuf++ |= mask;
+          }
+          break;
+
+        case 0:
+          mask = ~mask;
+          while(w--)
+          {
+              *pBuf++ &= mask;
+          }
+          break;
+    }
+}
+
 void Arduboy2Base::fillTriangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3, uint8_t color)
 {
-/*
 // Fill a triangle - Bresenham method
 // Original from http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
     uint8_t e1,e2;
@@ -242,7 +286,7 @@ void Arduboy2Base::fillTriangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, 
 	next2:
         if(minx>t1x) minx=t1x; if(minx>t2x) minx=t2x;
         if(maxx<t1x) maxx=t1x; if(maxx<t2x) maxx=t2x;
-        drawHorizontalLine(minx, maxx, y, color);
+        drawFastHLine(minx, y, maxx-minx, color);
         if(!changed1) t1x += signx1;
         t1x+=t1xp;
         if(!changed2) t2x += signx2;
@@ -309,7 +353,7 @@ void Arduboy2Base::fillTriangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, 
 	next4:
         if(minx>t1x) minx=t1x; if(minx>t2x) minx=t2x;
         if(maxx<t1x) maxx=t1x; if(maxx<t2x) maxx=t2x;
-        drawHorizontalLine(minx, maxx, y, color);
+        drawFastHLine(minx, y, maxx-minx, color);
 
         if(!changed1) t1x += signx1;
         t1x += t1xp;
@@ -319,7 +363,6 @@ void Arduboy2Base::fillTriangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, 
 
         if(y > y3) return;
     }
-*/
 }
 
 bool Arduboy2Base::everyXFrames(uint8_t frames)

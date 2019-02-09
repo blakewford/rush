@@ -15,18 +15,6 @@ extern Arduboy2Base arduboy;
 using namespace std::chrono;
 #endif
 
-/*
-namespace std
-{
-    void swap(long long& A, long long& B)
-    {
-        long long C = A;
-        A = B;
-        B = C;
-    }
-}
-*/
-
 #include "runtime_single_threaded_matmul.cc"
 
 enum parse_state: int8_t
