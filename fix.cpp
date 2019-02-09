@@ -15,6 +15,7 @@ const bool gKeepGoing = true;
 void init()
 {
 #ifdef __AVR__
+// Derived from source here https://github.com/arduino/ArduinoCore-avr 2/9/2019
 #ifndef _AVR_ATMEGA4808_H_INCLUDED
     sei();
 

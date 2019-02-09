@@ -111,7 +111,7 @@ void Arduboy2Base::pollButtons()
 void Arduboy2Base::clear()
 {
     uint8_t color = 0;
-    uint8_t* bPtr = sBuffer;
+    uint8_t* bufferPtr = sBuffer;
 
     asm volatile
     (
@@ -126,7 +126,7 @@ void Arduboy2Base::clear()
         "inc __tmp_reg__\n"
         "brne loopto\n"
         : [color] "+d" (color),
-          "+z" (bPtr)
+          "+z" (bufferPtr)
         :
         :
     );
@@ -135,13 +135,28 @@ void Arduboy2Base::clear()
 void Arduboy2Base::display()
 {
 #ifndef _AVR_ATMEGA4808_H_INCLUDED
-    for(int i = 0; i < (HEIGHT*WIDTH)/8; i++)
-    {
-        SPDR = pgm_read_byte(&sBuffer[i]);
-        asm volatile("nop");
-        while(!(SPSR & _BV(SPIF)))
-            ;
-    }
+    uint16_t count;
+    uint8_t* bufferPtr = sBuffer;
+
+    asm volatile
+    (
+        "   ldi   %A[count], %[len_lsb]               \n\t"
+        "   ldi   %B[count], %[len_msb]               \n\t"
+        "1: ld    __tmp_reg__, %a[ptr]      ;2        \n\t"
+        "   out   %[spdr], __tmp_reg__      ;1        \n\t"
+        "2: sbiw  %A[count], 1              ;2        \n\t"
+        "   sbrc  %A[count], 0              ;1/2      \n\t"
+        "   rjmp  2b                        ;2        \n\t"
+        "   st    %a[ptr]+, __tmp_reg__     ;2        \n\t"
+        "   brne  1b                        ;1/2 :18  \n\t"
+        "   in    __tmp_reg__, %[spsr]                \n\t"
+        : [ptr]     "+&e" (bufferPtr),
+          [count]   "=&w" (count)
+        : [spdr]    "I"   (_SFR_IO_ADDR(SPDR)),
+          [spsr]    "I"   (_SFR_IO_ADDR(SPSR)),
+          [len_msb] "M"   (WIDTH * (HEIGHT / 8 * 2) >> 8),
+          [len_lsb] "M"   (WIDTH * (HEIGHT / 8 * 2) & 0xFF)
+    );
 #endif
 }
 

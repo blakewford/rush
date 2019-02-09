@@ -1,5 +1,7 @@
 #include <avr/io.h>
 
+// Derived from source here https://github.com/arduino/ArduinoCore-avr 2/9/2019
+
 __attribute__ ((optimize(3)))
 void delay(uint32_t milliseconds)
 {
