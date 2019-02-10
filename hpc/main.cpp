@@ -31,37 +31,30 @@ SOFTWARE.
 #include "Arduboy2.h"
 #include "application_manager.h"
 #include "cloud/cloud_service.h"
-#include "debug_print.h"
-#include "adc_basic.h"
 
 #include "../RUSH/RUSH.ino"
 
+uint16_t gReportedVerts = 0;
 const bool gKeepGoing = true;
-extern Arduboy2Base arduboy;
 
-#define LIGHT_SENSOR_ADC_CHANNEL 5
+extern Arduboy2Base arduboy;
 
 extern "C"
 {
 
 // This handles messages published from the MQTT server when subscribed
-void receivedFromCloud(uint8_t *topic, uint8_t *payload)
+void receivedFromCloud(uint8_t* topic, uint8_t* payload)
 {
-//	debug_printer(SEVERITY_NONE, LEVEL_NORMAL, "topic: %s", topic);
-//	debug_printer(SEVERITY_NONE, LEVEL_NORMAL, "payload: %s", payload);
 }
 
-uint32_t instrCount = 0;
+uint32_t gCycleCount = 0;
 
 // This will get called every 1 second only while we have a valid Cloud connection
 void sendToCloud(void)
 {
 	static char json[70];
 
-	int light = ADC_0_get_conversion((adc_0_channel_t)LIGHT_SENSOR_ADC_CHANNEL);
-	int len
-//	    = sprintf(json, "{\"FPS\":%d,\"Vertices\":\"%lu\"}", light, instrCount*1024); Visuals clip at 100K
-	    = sprintf(json, "{\"FPS\":%d,\"Vertices\":\"%lu\"}", light, instrCount);	
+	int len = sprintf(json, "{\"FPS\":%lu,\"Vertices\":\"%u\"}", 1000/((gCycleCount*1024)/16000), gReportedVerts);	
 	if (len > 0) {
 		CLOUD_publishData((uint8_t *)json, len);
 	}
@@ -71,7 +64,6 @@ int main(void)
 {
     application_init();
 
-	arduboy.clear();
 	setup();
 
     TCA0.SINGLE.PER = ~0;
@@ -82,7 +74,7 @@ int main(void)
         loop();
 
         TCA0.SINGLE.CTRLA &= ~TCA_SINGLE_ENABLE_bm;
-        instrCount = TCA0.SINGLE.CNT;
+        gCycleCount = TCA0.SINGLE.CNT;
         TCA0.SINGLE.CNT = 0;
 
 		runScheduler();
