@@ -311,8 +311,8 @@ void Models::modifyAngle(const int16_t angle, const rotation_axis axis)
 void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color)
 {
 
-//    modifyAngle(yAngle, Y);
-//    modifyAngle(xAngle, X);
+    modifyAngle(yAngle, Y);
+    modifyAngle(xAngle, X);
 //    modifyAngle(zAngle, Z);
 
     param H;
@@ -327,7 +327,7 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
 //        H.shape[0] = 3;
 //        H.shape[1] = 1;
         float I[(int8_t)(s_zAngle.shape[0]*H.shape[1])];
-//        TensorPort(s_zAngle, H, I);
+        TensorPort(s_zAngle, H, I);
         memcpy(&copy[start], &I[0], 3*sizeof(float));
     }
 
@@ -345,7 +345,7 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
 //        K.shape[1] = 1;
 
         float L[(int8_t)(s_Ortho.shape[0]*K.shape[1])];
-//        TensorPort(s_Ortho, K, L);
+        TensorPort(s_Ortho, K, L);
         memcpy(&copy[start], &L[0], 3*sizeof(float));
     }
 
