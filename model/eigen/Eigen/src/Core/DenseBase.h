@@ -570,10 +570,10 @@ template<typename Derived> class DenseBase
 #define EIGEN_CURRENT_STORAGE_BASE_CLASS Eigen::DenseBase
 #define EIGEN_DOC_BLOCK_ADDONS_NOT_INNER_PANEL
 #define EIGEN_DOC_BLOCK_ADDONS_INNER_PANEL_IF(COND)
-#   include "../plugins/BlockMethods.h"
-#   ifdef EIGEN_DENSEBASE_PLUGIN
-#     include EIGEN_DENSEBASE_PLUGIN
-#   endif
+//#   include "../plugins/BlockMethods.h"
+//#   ifdef EIGEN_DENSEBASE_PLUGIN
+//#     include EIGEN_DENSEBASE_PLUGIN
+//#   endif
 #undef EIGEN_CURRENT_STORAGE_BASE_CLASS
 #undef EIGEN_DOC_BLOCK_ADDONS_NOT_INNER_PANEL
 #undef EIGEN_DOC_BLOCK_ADDONS_INNER_PANEL_IF
