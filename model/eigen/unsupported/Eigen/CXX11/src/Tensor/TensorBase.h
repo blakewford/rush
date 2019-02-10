@@ -153,14 +153,14 @@ class TensorBase<Derived, ReadOnlyAccessors>
     zeta(const OtherDerived& other) const {
       return binaryExpr(other.derived(), internal::scalar_zeta_op<Scalar>());
     }
-
+/*
     // polygamma(n = this, x = other)
     template<typename OtherDerived> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
     const TensorCwiseBinaryOp<internal::scalar_polygamma_op<Scalar>, const Derived, const OtherDerived>
     polygamma(const OtherDerived& other) const {
       return binaryExpr(other.derived(), internal::scalar_polygamma_op<Scalar>());
     }
-
+*/
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE const TensorCwiseUnaryOp<internal::scalar_erf_op<Scalar>, const Derived>
     erf() const {
