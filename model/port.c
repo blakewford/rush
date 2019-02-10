@@ -28,3 +28,19 @@ void delay(uint32_t milliseconds)
         "brne 1b" : "=w" (us) : "0" (us)
     );
 }
+
+ssize_t write(int fd, const void *buf, size_t count)
+{
+#ifndef _AVR_ATMEGA4808_H_INCLUDED
+    char* c = (const char*)buf;
+    while(count--)
+    {
+        while ( !( UCSR1A & (1<<UDRE1)) )
+            ;
+        UDR1 = *c;
+        c++;
+    }
+
+    return 0;
+#endif
+}
