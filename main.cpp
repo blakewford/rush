@@ -5,13 +5,25 @@ extern Arduboy2Base arduboy;
 #include "fix.cpp"
 #include "model/Models.cpp"
 
+#ifdef PROFILE
+#include <chrono>
+using namespace std::chrono;
+#endif
+
 void rush()
 {
 	init();
     setup();
     while(gKeepGoing)
     {
+#ifdef PROFILE
+    microseconds start = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
+#endif
         loop();
+#ifdef PROFILE
+    microseconds end = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
+    printf("%d Vertices %lld Microseconds\n", gReportedVerts, end.count()-start.count());
+#endif
         post();
     }
 }

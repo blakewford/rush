@@ -11,11 +11,6 @@
 extern Arduboy2Base arduboy;
 extern uint16_t gReportedVerts;
 
-#ifdef PROFILE
-#include <chrono>
-using namespace std::chrono;
-#endif
-
 #include "runtime_single_threaded_matmul.cc"
 
 enum parse_state: int8_t
@@ -237,31 +232,20 @@ void Models::begin()
 
 void Models::drawModel(const float* model, int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color)
 {
-#ifdef PROFILE
-    microseconds start = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
-#endif
     int16_t count = (int16_t)model[0];
-	gReportedVerts = count;
-
     count*=3;
+    gReportedVerts = count;
+
     count++;
     memcpy(copy, model, count*sizeof(float));
     drawModel(xAngle, yAngle, zAngle, color);
-
-#ifdef PROFILE
-    microseconds end = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
-    printf("Microseconds %lld\n", end.count()-start.count());
-#endif
 }
 
 void Models::drawCompressedModel(const uint8_t* model, const float* map, int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color)
 {
-#ifdef PROFILE
-    microseconds start = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
-#endif
     int16_t count = (int16_t)map[0];
-	gReportedVerts = count;
     count*=3;
+    gReportedVerts = count;
 
     copy[0] = 3;
     int16_t ndx = 0;
@@ -279,11 +263,6 @@ void Models::drawCompressedModel(const uint8_t* model, const float* map, int16_t
         drawModel(xAngle, yAngle, zAngle, color);
         ndx+=9;
     }
-
-#ifdef PROFILE
-    microseconds end = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
-    printf("%d Vertices %lld Microseconds\n", count, end.count()-start.count());
-#endif
 }
 
 void Models::modifyAngle(const int16_t angle, const rotation_axis axis)
@@ -291,7 +270,6 @@ void Models::modifyAngle(const int16_t angle, const rotation_axis axis)
     param A, B;
     int16_t current = 1;
     int16_t count = (int16_t)copy[0];
-
 
     rotationEntry(angle, A, axis);
     while(count--)
