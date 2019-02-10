@@ -43,7 +43,7 @@
   * Currently it must be 8 or 16. Other values will fail.
   */
 #ifndef EIGEN_ARCH_DEFAULT_NUMBER_OF_REGISTERS
-#define EIGEN_ARCH_DEFAULT_NUMBER_OF_REGISTERS 8
+#define EIGEN_ARCH_DEFAULT_NUMBER_OF_REGISTERS 4
 #endif
 
 #endif // EIGEN_DEFAULT_SETTINGS_H

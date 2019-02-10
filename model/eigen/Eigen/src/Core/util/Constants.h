@@ -23,7 +23,7 @@ const int Dynamic = -1;
 /** This value means that a signed quantity (e.g., a signed index) is not known at compile-time, and that instead its value
   * has to be specified at runtime.
   */
-const int DynamicIndex = 0xffffff;
+const int DynamicIndex = ~0;
 
 /** This value means +Infinity; it is currently used only as the p parameter to MatrixBase::lpNorm<int>().
   * The value Infinity there means the L-infinity norm.
