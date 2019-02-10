@@ -29,9 +29,9 @@ void delay(uint32_t milliseconds)
     );
 }
 
+#ifndef _AVR_ATMEGA4808_H_INCLUDED
 ssize_t write(int fd, const void *buf, size_t count)
 {
-#ifndef _AVR_ATMEGA4808_H_INCLUDED
     char* c = (const char*)buf;
     while(count--)
     {
@@ -42,5 +42,5 @@ ssize_t write(int fd, const void *buf, size_t count)
     }
 
     return 0;
-#endif
 }
+#endif
