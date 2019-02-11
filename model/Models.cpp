@@ -251,15 +251,15 @@ void Models::drawCompressedModel(const uint8_t* model, const float* map, int16_t
     int16_t ndx = 0;
     while(ndx < count)
     {
-        copy[1] = map[model[ndx]];
-        copy[2] = map[model[ndx+1]];
-        copy[3] = map[model[ndx+2]];
-        copy[4] = map[model[ndx+3]];
-        copy[5] = map[model[ndx+4]];
-        copy[6] = map[model[ndx+5]];
-        copy[7] = map[model[ndx+6]];
-        copy[8] = map[model[ndx+7]];
-        copy[9] = map[model[ndx+8]];
+        copy[1] = map[pgm_read_byte(&model[ndx])];
+        copy[2] = map[pgm_read_byte(&model[ndx+1])];
+        copy[3] = map[pgm_read_byte(&model[ndx+2])];
+        copy[4] = map[pgm_read_byte(&model[ndx+3])];
+        copy[5] = map[pgm_read_byte(&model[ndx+4])];
+        copy[6] = map[pgm_read_byte(&model[ndx+5])];
+        copy[7] = map[pgm_read_byte(&model[ndx+6])];
+        copy[8] = map[pgm_read_byte(&model[ndx+7])];
+        copy[9] = map[pgm_read_byte(&model[ndx+8])];
         drawModel(xAngle, yAngle, zAngle, color);
         ndx+=9;
     }

@@ -6,7 +6,7 @@
 #include <avr/pgmspace.h>
 #endif
 
-const uint8_t obj[] =
+const uint8_t PROGMEM obj[] =
 {
     1,    2,    3,
     1,    4,    3,

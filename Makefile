@@ -1,6 +1,6 @@
 CC=g++
 SRC=main.cpp
-EXTRA=engine/engine.cpp -lSDL2 -DPROGMEM=
+EXTRA=engine/engine.cpp -lSDL2 -DPROGMEM= -Dpgm_read_byte=*
 GAME=rush
 TARGET=atmega32u4
 
