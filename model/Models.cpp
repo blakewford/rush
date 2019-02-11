@@ -234,7 +234,7 @@ void Models::drawModel(const float* model, int16_t xAngle, int16_t yAngle, int16
 {
     int16_t count = (int16_t)model[0];
     count*=3;
-    gReportedVerts = count;
+    gReportedVerts += count;
 
     count++;
     memcpy(copy, model, count*sizeof(float));
@@ -245,7 +245,7 @@ void Models::drawCompressedModel(const uint8_t* model, const float* map, int16_t
 {
     int16_t count = (int16_t)map[0];
     count*=3;
-    gReportedVerts = count;
+    gReportedVerts += count;
 
     copy[0] = 3;
     int16_t ndx = 0;

@@ -16,6 +16,7 @@ void rush()
     setup();
     while(gKeepGoing)
     {
+        gReportedVerts = 0;
 #ifdef PROFILE
     microseconds start = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
 #endif
