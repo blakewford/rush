@@ -1,7 +1,7 @@
 #ifndef Models_h
 #define Models_h
 
-#include "Arduboy2.h"
+#include <Arduboy2.h>
 
 const uint8_t BUFFER_SIZE = 16;
 

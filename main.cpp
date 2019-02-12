@@ -1,7 +1,5 @@
 #include <Arduboy2.h>
 
-extern Arduboy2Base arduboy;
-
 #include "fix.cpp"
 #include "model/Models.cpp"
 

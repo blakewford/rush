@@ -13,26 +13,23 @@ Arduboy2Base arduboy;
 
 void setup()
 {
-  arduboy.begin();
-  arduboy.setFrameRate(60);
-  models.begin();
+    arduboy.begin();
+    arduboy.setFrameRate(60);
+    models.begin();
 }
 
 int16_t yAngle = 0;
 
 void loop()
 {
-  if (!(arduboy.nextFrame())) return;
-  arduboy.pollButtons();
-  arduboy.clear();
+    if (!(arduboy.nextFrame())) return;
+    arduboy.pollButtons();
+    arduboy.clear();
 
-//  models.drawModel(obj, 15, yAngle, 0, 1);
-  models.drawCompressedModel(obj, ndxToValue, 15, yAngle, 0, 1);
-  if(arduboy.everyXFrames(1))
-  {
-      yAngle++;
-  }
+//    models.drawModel(obj, 15, yAngle, 0, 1);
+    models.drawCompressedModel(obj, ndxToValue, 15, yAngle, 0, 1);
+    yAngle++;
 
-  arduboy.display();
+    arduboy.display();
 }
 

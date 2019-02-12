@@ -2,6 +2,8 @@
 
 // Derived from source here https://github.com/arduino/ArduinoCore-avr 2/9/2019
 
+extern "C"
+{
 __attribute__ ((optimize(3)))
 void delay(uint32_t milliseconds)
 {
@@ -27,6 +29,29 @@ void delay(uint32_t milliseconds)
         "1: sbiw %0,1" "\n\t"
         "brne 1b" : "=w" (us) : "0" (us)
     );
+}
+
+uint8_t gFakeMillis = 0;
+
+unsigned long millis()
+{
+    gFakeMillis += 16;
+    return gFakeMillis;
+}
+
+unsigned long micros()
+{
+    return ~0;
+}
+
+void randomSeed(unsigned long seed)
+{
+    if(seed != 0)
+    {
+        srandom(seed);
+    }
+}
+
 }
 
 #ifndef _AVR_ATMEGA4808_H_INCLUDED

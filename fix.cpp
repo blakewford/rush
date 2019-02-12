@@ -4,13 +4,11 @@ int32_t SDL_Init();
 extern bool gKeepGoing;
 void* RenderThread(void* buffer);
 uint32_t gTexture[WIDTH*HEIGHT];
+extern Arduboy2Base arduboy;
 #else
 #include "RUSH/RUSH.ino"
 const bool gKeepGoing = true;
 #include <avr/interrupt.h>
-
-#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
-#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
 #endif
 
 uint16_t gReportedVerts = 0;
@@ -77,7 +75,11 @@ namespace std
 }
 #endif
 
-void Arduboy2Base::fillTriangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3, uint8_t color)
+void Arduboy2Audio::begin()
+{
+}
+
+void fillTriangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3, uint8_t color)
 {
 // Fill a triangle - Bresenham method
 // Original from http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
@@ -158,7 +160,7 @@ void Arduboy2Base::fillTriangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, 
 	next2:
         if(minx>t1x) minx=t1x; if(minx>t2x) minx=t2x;
         if(maxx<t1x) maxx=t1x; if(maxx<t2x) maxx=t2x;
-        drawFastHLine(minx, y, maxx-minx, color);
+        arduboy.drawFastHLine(minx, y, maxx-minx, color);
         if(!changed1) t1x += signx1;
         t1x+=t1xp;
         if(!changed2) t2x += signx2;
@@ -225,7 +227,7 @@ void Arduboy2Base::fillTriangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, 
 	next4:
         if(minx>t1x) minx=t1x; if(minx>t2x) minx=t2x;
         if(maxx<t1x) maxx=t1x; if(maxx<t2x) maxx=t2x;
-        drawFastHLine(minx, y, maxx-minx, color);
+        arduboy.drawFastHLine(minx, y, maxx-minx, color);
 
         if(!changed1) t1x += signx1;
         t1x += t1xp;

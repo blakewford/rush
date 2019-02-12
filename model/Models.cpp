@@ -8,6 +8,8 @@
 
 #include "Models.h"
 
+#include <Arduboy2.h>
+
 extern Arduboy2Base arduboy;
 extern uint16_t gReportedVerts;
 
@@ -343,6 +345,7 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
         int16_t x3 = copy[current++] + offsetX;
         int16_t y3 = copy[current++] + offsetY;
         current++;
-        arduboy.fillTriangle(x1, y1, x2, y2, x3, y3, color);
+//        arduboy.fillTriangle(x1, y1, x2, y2, x3, y3, color);
+        fillTriangle(x1, y1, x2, y2, x3, y3, color);
     }
 }
