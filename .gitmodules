@@ -4,6 +4,3 @@
 [submodule "ArduinoCore-avr"]
 	path = ArduinoCore-avr
 	url = https://github.com/arduino/ArduinoCore-avr.git
-[submodule "Arduboy2"]
-	path = Arduboy2
-	url = https://github.com/blakewford/Arduboy2.git
