@@ -13,7 +13,9 @@ Arduboy2Base arduboy;
 
 void setup()
 {
+#ifndef _AVR_ATMEGA4808_H_INCLUDED
     arduboy.begin();
+#endif
     arduboy.setFrameRate(60);
     models.begin();
 }

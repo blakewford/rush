@@ -49,34 +49,36 @@ uint32_t gCycleCount = 0;
 // This will get called every 1 second only while we have a valid Cloud connection
 void sendToCloud(void)
 {
-	static char json[70];
+    static char json[70];
 
-	int len = sprintf(json, "{\"FPS\":%lu,\"Vertices\":\"%u\"}", 1000/((gCycleCount*1024)/16000), gReportedVerts);	
-	if (len > 0) {
-		CLOUD_publishData((uint8_t *)json, len);
-	}
+    int len = sprintf(json, "{\"FPS\":%lu,\"Vertices\":\"%u\"}", 1000/((gCycleCount*1024)/16000), gReportedVerts);
+    if(len > 0)
+    {
+        CLOUD_publishData((uint8_t *)json, len);
+    }
 }
 
 int main(void)
 {
     application_init();
 
-	setup();
+    setup();
 
     TCA0.SINGLE.PER = ~0;
     while(gKeepGoing)
     {
         TCA0.SINGLE.CTRLA |= (TCA_SINGLE_CLKSEL_DIV1024_gc) | (TCA_SINGLE_ENABLE_bm);
 
+        gReportedVerts = 0;
         loop();
 
         TCA0.SINGLE.CTRLA &= ~TCA_SINGLE_ENABLE_bm;
         gCycleCount = TCA0.SINGLE.CNT;
         TCA0.SINGLE.CNT = 0;
 
-		runScheduler();
-	}
+        runScheduler();
+    }
 
-	return 0;
+    return 0;
 }
 }
