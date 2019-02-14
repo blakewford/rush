@@ -32,6 +32,18 @@
 extern "C" {
 #endif
 
+#undef PORTB
+#define PORTB (*(PORT_t *) 0x0420)
+
+#undef PORTD
+#define PORTD (*(PORT_t *) 0x0460)
+
+#undef PORTE
+#define PORTE (*(PORT_t *) 0x0480)
+
+#undef PORTF
+#define PORTF (*(PORT_t *) 0x04A0)
+
 #include <compiler.h>
 
 enum port_pull_mode {

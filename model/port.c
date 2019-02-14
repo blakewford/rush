@@ -2,8 +2,11 @@
 
 // Derived from source here https://github.com/arduino/ArduinoCore-avr 2/9/2019
 
+#ifdef __cplusplus
 extern "C"
 {
+#endif
+
 __attribute__ ((optimize(3)))
 void delay(uint32_t milliseconds)
 {
@@ -52,7 +55,9 @@ void randomSeed(unsigned long seed)
     }
 }
 
+#ifdef __cplusplus
 }
+#endif
 
 #ifndef _AVR_ATMEGA4808_H_INCLUDED
 ssize_t write(int fd, const void *buf, size_t count)

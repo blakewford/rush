@@ -7,6 +7,18 @@
 extern "C" {
 #endif
 
+#undef PORTB
+#define PORTB (*(PORT_t *) 0x0420)
+
+#undef PORTD
+#define PORTD (*(PORT_t *) 0x0460)
+
+#undef PORTE
+#define PORTE (*(PORT_t *) 0x0480)
+
+#undef PORTF
+#define PORTF (*(PORT_t *) 0x04A0)
+
 /** Module Pin Settings */
 // #define CONF_WIFI_M2M_RESET_PIN                 IOPORT_CREATE_PIN(PORTD, 6)
 // #define CONF_WIFI_M2M_CHIP_ENABLE_PIN           IOPORT_CREATE_PIN(PORTD, 5)

@@ -32,10 +32,7 @@ SOFTWARE.
 #include "application_manager.h"
 #include "cloud/cloud_service.h"
 
-#include "../RUSH/RUSH.ino"
-
-uint16_t gReportedVerts = 0;
-const bool gKeepGoing = true;
+#include "../fix.cpp"
 
 extern Arduboy2Base arduboy;
 

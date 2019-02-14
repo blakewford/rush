@@ -45,6 +45,18 @@
 extern "C" {
 #endif
 
+#undef PORTB
+#define PORTB (*(PORT_t *) 0x0420)
+
+#undef PORTD
+#define PORTD (*(PORT_t *) 0x0460)
+
+#undef PORTE
+#define PORTE (*(PORT_t *) 0x0480)
+
+#undef PORTF
+#define PORTF (*(PORT_t *) 0x04A0)
+
 void mcu_init(void)
 {
 	/* On AVR devices all peripherals are enable from power on reset, this
