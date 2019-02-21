@@ -13,6 +13,8 @@
 #define CLOUD_MAX_DEVICEID_LENGTH 30
 #define PASSWORD_SPACE 456
 
+void LAN_init(char *deviceId);
+
 void CLOUD_reset(void);
 void CLOUD_init(char *deviceId);
 void CLOUD_subscribe(void);

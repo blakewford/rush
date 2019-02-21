@@ -39,23 +39,39 @@ extern Arduboy2Base arduboy;
 extern "C"
 {
 
-// This handles messages published from the MQTT server when subscribed
-void receivedFromCloud(uint8_t* topic, uint8_t* payload)
-{
-}
-
+char gJsonBuffer[64];
 uint32_t gCycleCount = 0;
+uint16_t buildJson(char* buffer, uint16_t bufferSize)
+{
+    uint16_t length = 0;
+    uint32_t fps = 1000/((gCycleCount*1024)/16000);
+    if(gReportedVerts > 0)
+    {
+        memset(gJsonBuffer, '\0', 64);
+        length = sprintf(gJsonBuffer, "{\"FPS\":%lu,\"Vertices\":\"%u\"}", fps, gReportedVerts);
+    }
+    else
+    {
+        gJsonBuffer[0] = '\0';
+        length = 0;
+    }
+
+    return length;
+}
 
 // This will get called every 1 second only while we have a valid Cloud connection
 void sendToCloud(void)
 {
-    static char json[70];
-
-    int len = sprintf(json, "{\"FPS\":%lu,\"Vertices\":\"%u\"}", 1000/((gCycleCount*1024)/16000), gReportedVerts);
-    if(len > 0)
+    uint16_t length = buildJson(gJsonBuffer, 64);
+    if(length > 0)
     {
-        CLOUD_publishData((uint8_t *)json, len);
+        CLOUD_publishData((uint8_t *)gJsonBuffer, length);
     }
+}
+
+// This handles messages published from the MQTT server when subscribed
+void receivedFromCloud(uint8_t* topic, uint8_t* payload)
+{
 }
 
 int main(void)
@@ -67,9 +83,9 @@ int main(void)
     TCA0.SINGLE.PER = ~0;
     while(gKeepGoing)
     {
+        gReportedVerts = 0;
         TCA0.SINGLE.CTRLA |= (TCA_SINGLE_CLKSEL_DIV1024_gc) | (TCA_SINGLE_ENABLE_bm);
 
-        gReportedVerts = 0;
         loop();
 
         TCA0.SINGLE.CTRLA &= ~TCA_SINGLE_ENABLE_bm;

@@ -58,7 +58,10 @@ char       deviceId[CLOUD_MAX_DEVICEID_LENGTH];
 char       mqttSubscribeTopic[TOPIC_SIZE];
 
 // Scheduler Callback functions
+
+absolutetime_t LAN_task(void *param);
 absolutetime_t CLOUD_task(void *param);
+
 absolutetime_t mqttTimeoutTask(void *payload);
 absolutetime_t cloudResetTask(void *payload);
 
@@ -79,7 +82,10 @@ bool sendSubscribe       = true;
 #define CLOUD_RESET_TIMEOUT 2000L       // 2 seconds
 
 // Create the timers for scheduler_timeout which runs these tasks
+
+timer_struct_t LAN_taskTimer        = {LAN_task};
 timer_struct_t CLOUD_taskTimer      = {CLOUD_task};
+
 timer_struct_t mqttTimeoutTaskTimer = {mqttTimeoutTask};
 
 timer_struct_t cloudResetTaskTimer = {cloudResetTask};
@@ -128,6 +134,12 @@ void CLOUD_init(char *attDeviceID)
 {
 	// Create timers for the application scheduler
 	scheduler_timeout_create(&CLOUD_taskTimer, 500);
+}
+
+void LAN_init(char *attDeviceID)
+{
+	// Create timers for the application scheduler
+	scheduler_timeout_create(&LAN_taskTimer, 500);
 }
 
 static void connectMQTT()
@@ -190,16 +202,25 @@ static int8_t             connectMQTTSocket(void)
 		struct bsd_sockaddr_in addr;
 
 		addr.sin_family      = PF_INET;
+#ifdef CLOUD
 		addr.sin_port        = BSD_htons(443);
 		addr.sin_addr.s_addr = mqttGoogleApisComIP;
 
+#else
+		addr.sin_port        = BSD_htons(8080);
+		addr.sin_addr.s_addr = 1795336384;
+#endif
 		mqttContext * context     = MQTT_GetClientConnectionInfo();
 		socketState_t socketState = BSD_GetSocketState(*context->tcpClientSocket);
 
 		// Todo: Check - Are we supposed to call close on the socket here to ensure we do not leak ?
 		if (socketState == NOT_A_SOCKET) {
+#ifdef CLOUD
 			*context->tcpClientSocket = BSD_socket(PF_INET, BSD_SOCK_STREAM, 1);
 
+#else
+			*context->tcpClientSocket = BSD_socket(PF_INET, BSD_SOCK_STREAM, 0);
+#endif
 			if (*context->tcpClientSocket >= 0) {
 				packetReceptionHandler_t *sockInfo = getSocketInfo(*context->tcpClientSocket);
 				if (sockInfo != NULL) {
@@ -326,6 +347,82 @@ absolutetime_t CLOUD_task(void *param)
 			break;
 		}
 	}
+	return CLOUD_TASK_INTERVAL;
+}
+
+char gJsonBuffer[64];
+uint16_t buildJson(char* buffer, uint16_t bufferSize);
+absolutetime_t LAN_task(void *param)
+{
+	mqttContext * mqttConnnectionInfo = MQTT_GetClientConnectionInfo();
+	socketState_t socketState;
+
+	if (!cloudInitialized) {
+		if (!isResetting) {
+			isResetting = true;
+			debug_printError("CLOUD: Cloud reset timer is set");
+			scheduler_timeout_delete(&mqttTimeoutTaskTimer);
+			scheduler_timeout_create(&cloudResetTaskTimer, CLOUD_RESET_TIMEOUT);
+			cloudResetTimerFlag = true;
+		}
+		} else {
+		if (!waitingForMQTT) {
+			if ((MQTT_GetConnectionState() != CONNECTED) && (cloudResetTimerFlag == false)) {
+				// Start the MQTT connection timeout
+				debug_printError("MQTT: MQTT reset timer is created");
+				scheduler_timeout_create(&mqttTimeoutTaskTimer, CLOUD_MQTT_TIMEOUT_COUNT);
+				waitingForMQTT = true;
+			}
+		}
+	}
+
+	// If we have lost the AP we need to disconnect MQTT. TCP will still buffer but we know it will fail if no AP
+	if (!shared_networking_params.haveAPConnection) {
+		// This initiates a disconnection packet being sent, so it does not yet leave us disconnected!
+		if (MQTT_GetConnectionState() == CONNECTED) {
+			MQTT_Disconnect(mqttConnnectionInfo);
+			shared_networking_params.haveERROR = 1;
+		}
+		} else {
+		static int32_t lastAge = -1;
+		socketState            = BSD_GetSocketState(*mqttConnnectionInfo->tcpClientSocket);
+
+		int32_t thisAge = MQTT_getConnectionAge();
+		time_t  theTime = time(NULL);
+		if (theTime <= 0) {
+			debug_printError("CLOUD: time not ready");
+			} else {
+			if (MQTT_GetConnectionState() == CONNECTED) {
+				if (lastAge != thisAge) {
+					debug_printInfo("CLOUD: Uptime %lus SocketState (%d) MQTT (%d)",
+					thisAge,
+					socketState,
+					MQTT_GetConnectionState());
+					lastAge = thisAge;
+				}
+			}
+		}
+
+        uint16_t length = buildJson(gJsonBuffer, 64);
+
+		switch (socketState) {
+			case NOT_A_SOCKET:
+			case SOCKET_CLOSED:
+			// Reinitialize MQTT
+			MQTT_ClientInitialise();
+			connectMQTTSocket();
+			break;
+			case SOCKET_CONNECTED:
+			if(length)
+			{
+				BSD_send(*mqttConnnectionInfo->tcpClientSocket, &length, 2, 0);
+				BSD_send(*mqttConnnectionInfo->tcpClientSocket, gJsonBuffer, length, 0);
+			}
+			default:
+			break;
+		}
+	}
+
 	return CLOUD_TASK_INTERVAL;
 }
 
