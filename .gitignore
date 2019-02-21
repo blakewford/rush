@@ -6,3 +6,4 @@ rush.hex
 .vs
 hpc/Debug
 hpc/Release
+lan/Monitor

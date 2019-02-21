@@ -21,7 +21,15 @@ void rush()
         loop();
 #ifdef PROFILE
     microseconds end = duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch());
-    printf("%d Vertices %lld Microseconds\n", gReportedVerts, end.count()-start.count());
+    if(gDbgAttached)
+    {
+        static char json[64];
+        memset(json, '\0', 64);
+        uint16_t length = sprintf(json, "{\"FPS\":%lu,\"Vertices\":\"%u\"}", 1000000/(end.count()-start.count()), gReportedVerts);
+
+        send(gSocket, &length, sizeof(uint16_t), 0);
+        send(gSocket, json, length, 0);
+    }
 #endif
         post();
     }
