@@ -1,5 +1,5 @@
 Monitor: Main.cs
-	mcs $< -out:$@ -r:System.Drawing
+	mcs $< -out:$@ -r:System.Drawing -r:System.Web.Extensions
 
 clean:
 	-@rm Monitor

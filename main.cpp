@@ -25,7 +25,7 @@ void rush()
     {
         static char json[64];
         memset(json, '\0', 64);
-        uint16_t length = sprintf(json, "{\"FPS\":%lu,\"Vertices\":\"%u\"}", 1000000/(end.count()-start.count()), gReportedVerts);
+        uint16_t length = sprintf(json, "{\"fps\":%d,\"vertices\":%d}", 1000000/(end.count()-start.count()), gReportedVerts);
 
         send(gSocket, &length, sizeof(uint16_t), 0);
         send(gSocket, json, length, 0);

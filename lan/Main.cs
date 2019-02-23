@@ -4,9 +4,22 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Collections;
+using System.Collections.Generic;
+using System.Web.Script.Serialization;
 
 public class Monitor
 {
+    private const int IMAGE_SIZE = 512;
+    private static Mutex mMutex = new Mutex();
+    private static ArrayList mAccumulatedValues = new ArrayList();
+
+    private struct DebugInfo
+    {
+        public int fps;
+        public int vertices;
+    }
+
     private static void InitializeBitmap(ref Bitmap bitmap)
     {
         Color background = Color.White;
@@ -43,6 +56,7 @@ public class Monitor
             Socket client = socket.Accept();
 
             byte[] data = new Byte[64];
+            var deserializer = new JavaScriptSerializer();
             while(true)
             {
                 Console.WriteLine("Ready...");
@@ -53,8 +67,19 @@ public class Monitor
 
                 if(size > 0)
                 {
-                    client.Receive(data, BitConverter.ToUInt16(data, 0), SocketFlags.None);
-                    Console.WriteLine("{0}: {1}", DateTime.Now.ToString(), Encoding.ASCII.GetString(data));
+                    client.Receive(data, size, SocketFlags.None);
+
+                    string json = Encoding.UTF8.GetString(data).Substring(0, size);
+
+                    var debugInfo = deserializer.Deserialize<DebugInfo>(json);
+                    Console.WriteLine("{0}: {1} {2}", DateTime.Now.ToString(), debugInfo.fps, debugInfo.vertices);
+
+                    if(debugInfo.fps < IMAGE_SIZE)
+                    {
+                        mMutex.WaitOne();
+                        mAccumulatedValues.Add(debugInfo.fps);
+                        mMutex.ReleaseMutex();
+                    }
                 }
             }
 //            client.Close();
@@ -67,11 +92,38 @@ public class Monitor
 
     public static int Main(String[] args)
     {
-        Bitmap bitmap = new Bitmap(512, 512);
+        ArrayList data = new ArrayList();
+        Bitmap bitmap = new Bitmap(IMAGE_SIZE, IMAGE_SIZE);
         new Thread(() => {
             while(true)
             {
+                if(mAccumulatedValues.Count == 0) continue;
+
                 InitializeBitmap(ref bitmap);
+
+                mMutex.WaitOne();
+                int average = 0;
+                foreach(int value in mAccumulatedValues)
+                {
+                    average += value;
+                }
+                average /= mAccumulatedValues.Count;
+                mAccumulatedValues.Clear();
+                mMutex.ReleaseMutex();
+
+                int count = IMAGE_SIZE/32; //History in seconds
+                while(count-- > 0)
+                    data.Add(average);
+                while(data.Count > IMAGE_SIZE)
+                    data.RemoveAt(0);
+
+                int current = 0;
+                int start = IMAGE_SIZE - data.Count;
+                foreach(int value in data)
+                {
+                    bitmap.SetPixel(start + current, IMAGE_SIZE - value, Color.Black);
+                    current++;
+                }
                 bitmap.Save("Chart.png");
                 Thread.Sleep(1000);
             }

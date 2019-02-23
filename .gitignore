@@ -7,3 +7,4 @@ rush.hex
 hpc/Debug
 hpc/Release
 lan/Monitor
+lan/*.png
