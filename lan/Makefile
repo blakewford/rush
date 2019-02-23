@@ -1,5 +1,5 @@
 Monitor: Main.cs
-	mcs $< -out:$@
+	mcs $< -out:$@ -r:System.Drawing
 
 clean:
 	-@rm Monitor
