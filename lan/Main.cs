@@ -14,7 +14,8 @@ public class Monitor
     private const int CHART_SIZE = 512;
     private const int MINIMUM_RANGE = 32;
     private static Mutex mMutex = new Mutex();
-    private static ArrayList mAccumulatedValues = new ArrayList();
+    private static ArrayList mAccumulatedFpsValues = new ArrayList();
+    private static ArrayList mAccumulatedVertValues = new ArrayList();
 
     private struct DebugInfo
     {
@@ -77,7 +78,8 @@ public class Monitor
                     if(debugInfo.fps < CHART_SIZE)
                     {
                         mMutex.WaitOne();
-                        mAccumulatedValues.Add(debugInfo.fps);
+                        mAccumulatedFpsValues.Add(debugInfo.fps);
+                        mAccumulatedVertValues.Add(debugInfo.vertices);
                         mMutex.ReleaseMutex();
                     }
                 }
@@ -97,22 +99,22 @@ public class Monitor
         int borderSize = IMAGE_SIZE/20;
 
         Graphics g = Graphics.FromImage(bitmap);
-        RectangleF titleRect = new RectangleF(borderSize, borderSize, borderSize*2, borderSize);
+        RectangleF titleRect = new RectangleF(borderSize, IMAGE_SIZE-(borderSize*2), borderSize*2, IMAGE_SIZE-(borderSize*2));
         RectangleF unitRect  = new RectangleF(IMAGE_SIZE/2, IMAGE_SIZE-(borderSize*2), (IMAGE_SIZE/2) + borderSize, IMAGE_SIZE-(borderSize*2));
         g.DrawString(title, new Font("Helvetica",16), brush, titleRect);
         g.DrawString("Time (s)", new Font("Helvetica",16), Brushes.Black, unitRect);
         g.Flush();
     }
 
-    private static int PolishData(ref ArrayList data)
+    private static double PolishData(ref ArrayList data)
     {
         int average = 0;
-        foreach(int value in mAccumulatedValues)
+        foreach(int value in mAccumulatedFpsValues)
         {
             average += value;
         }
-        average /= mAccumulatedValues.Count;
-        mAccumulatedValues.Clear();
+        average /= mAccumulatedFpsValues.Count;
+        mAccumulatedFpsValues.Clear();
         mMutex.ReleaseMutex();
         int count = CHART_SIZE/32; //History in seconds
         while(count-- > 0)
@@ -120,24 +122,35 @@ public class Monitor
         while(data.Count > CHART_SIZE)
             data.RemoveAt(0);
 
-        int max = int.MinValue;
+        double max = int.MinValue;
         foreach(int value in data)
         {
             if(value > max)
                 max = value;
         }
 
-        int range = Math.Max(MINIMUM_RANGE, max);
-        for(; (CHART_SIZE%range) != 0; range++)
-            ;
+        double scale = 1.0f;
+        int range = Math.Max(MINIMUM_RANGE, Convert.ToInt32(max));
+        if(max > CHART_SIZE)
+        {
+            scale = 1/Math.Ceiling(max/CHART_SIZE);
+        }
+        else
+        {
+            for(; (CHART_SIZE%range) != 0; range++)
+                ;
 
-        return CHART_SIZE/range; //scale
+            scale = CHART_SIZE/range;
+        }
+
+        return scale;
 //        return 1; //scale
     }
 
     public static int Main(String[] args)
     {
-        ArrayList data = new ArrayList();
+        ArrayList fpsData = new ArrayList();
+        ArrayList vertData = new ArrayList();
         Bitmap bitmap = new Bitmap(IMAGE_SIZE, IMAGE_SIZE);
         BuildChart(ref bitmap, "FPS", Brushes.BlueViolet);
 
@@ -145,17 +158,17 @@ public class Monitor
         new Thread(() => {
             while(true)
             {
-                if(mAccumulatedValues.Count == 0) continue;
+                if(mAccumulatedFpsValues.Count == 0) continue;
 
                 InitializeBitmap(ref bitmap, Color.White, rect);
 
                 mMutex.WaitOne();
-                int scale = PolishData(ref data);
+                double scale = PolishData(ref fpsData);
                 int current = 0;
-                int start = (IMAGE_SIZE-CHART_SIZE) + (CHART_SIZE - data.Count);
-                foreach(int value in data)
+                int start = (IMAGE_SIZE-CHART_SIZE) + (CHART_SIZE - fpsData.Count);
+                foreach(int value in fpsData)
                 {
-                    int scaledValue = (value*scale);
+                    int scaledValue = Convert.ToInt32(value*scale);
 
                     int xValue = start + current;
                     int yValue = (CHART_SIZE - scaledValue - 2);
