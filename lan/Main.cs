@@ -12,6 +12,7 @@ public class Monitor
 {
     private const int IMAGE_SIZE = 640;
     private const int CHART_SIZE = 512;
+    private const int MINIMUM_RANGE = 32;
     private static Mutex mMutex = new Mutex();
     private static ArrayList mAccumulatedValues = new ArrayList();
 
@@ -91,7 +92,7 @@ public class Monitor
 
     private static void BuildChart(ref Bitmap bitmap, string title, Brush brush)
     {
-        InitializeBitmap(ref bitmap, Color.White, new Rectangle(0, 0, IMAGE_SIZE, IMAGE_SIZE));
+        InitializeBitmap(ref bitmap, Color.LightGray, new Rectangle(0, 0, IMAGE_SIZE, IMAGE_SIZE));
 
         int borderSize = IMAGE_SIZE/20;
 
@@ -101,6 +102,37 @@ public class Monitor
         g.DrawString(title, new Font("Helvetica",16), brush, titleRect);
         g.DrawString("Time (s)", new Font("Helvetica",16), Brushes.Black, unitRect);
         g.Flush();
+    }
+
+    private static int PolishData(ref ArrayList data)
+    {
+        int average = 0;
+        foreach(int value in mAccumulatedValues)
+        {
+            average += value;
+        }
+        average /= mAccumulatedValues.Count;
+        mAccumulatedValues.Clear();
+        mMutex.ReleaseMutex();
+        int count = CHART_SIZE/32; //History in seconds
+        while(count-- > 0)
+            data.Add(average);
+        while(data.Count > CHART_SIZE)
+            data.RemoveAt(0);
+
+        int max = int.MinValue;
+        foreach(int value in data)
+        {
+            if(value > max)
+                max = value;
+        }
+
+        int range = Math.Max(MINIMUM_RANGE, max);
+        for(; (CHART_SIZE%range) != 0; range++)
+            ;
+
+        return CHART_SIZE/range; //scale
+//        return 1; //scale
     }
 
     public static int Main(String[] args)
@@ -118,32 +150,20 @@ public class Monitor
                 InitializeBitmap(ref bitmap, Color.White, rect);
 
                 mMutex.WaitOne();
-                int average = 0;
-                foreach(int value in mAccumulatedValues)
-                {
-                    average += value;
-                }
-                average /= mAccumulatedValues.Count;
-                mAccumulatedValues.Clear();
-                mMutex.ReleaseMutex();
-
-                int count = CHART_SIZE/32; //History in seconds
-                while(count-- > 0)
-                    data.Add(average);
-                while(data.Count > CHART_SIZE)
-                    data.RemoveAt(0);
-
+                int scale = PolishData(ref data);
                 int current = 0;
                 int start = (IMAGE_SIZE-CHART_SIZE) + (CHART_SIZE - data.Count);
                 foreach(int value in data)
                 {
-                    int xValue = start + current;
-                    int yValue = (CHART_SIZE - value)-2;
+                    int scaledValue = (value*scale);
 
+                    int xValue = start + current;
+                    int yValue = (CHART_SIZE - scaledValue - 2);
                     int weight = 5;
                     while(weight-- > 0)
                     {
-                        bitmap.SetPixel(xValue, yValue++, Color.BlueViolet);
+                        if(yValue > 0 && yValue < CHART_SIZE)
+                            bitmap.SetPixel(xValue, yValue++, Color.BlueViolet);
                     }
                     current++;
                 }
