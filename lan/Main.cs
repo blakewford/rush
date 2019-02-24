@@ -10,7 +10,8 @@ using System.Web.Script.Serialization;
 
 public class Monitor
 {
-    private const int IMAGE_SIZE = 512;
+    private const int IMAGE_SIZE = 640;
+    private const int CHART_SIZE = 512;
     private static Mutex mMutex = new Mutex();
     private static ArrayList mAccumulatedValues = new ArrayList();
 
@@ -20,13 +21,11 @@ public class Monitor
         public int vertices;
     }
 
-    private static void InitializeBitmap(ref Bitmap bitmap)
+    private static void InitializeBitmap(ref Bitmap bitmap, Color background, Rectangle rect)
     {
-        Color background = Color.White;
-        Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
         System.Drawing.Imaging.BitmapData data = bitmap.LockBits(rect, System.Drawing.Imaging.ImageLockMode.WriteOnly, bitmap.PixelFormat);
 
-        int size  = Math.Abs(data.Stride) * bitmap.Height;
+        int size  = Math.Abs(data.Stride) * rect.Width;
 
         IntPtr p = data.Scan0;
         byte[] raw = new byte[size];
@@ -74,7 +73,7 @@ public class Monitor
                     var debugInfo = deserializer.Deserialize<DebugInfo>(json);
                     Console.WriteLine("{0}: {1} {2}", DateTime.Now.ToString(), debugInfo.fps, debugInfo.vertices);
 
-                    if(debugInfo.fps < IMAGE_SIZE)
+                    if(debugInfo.fps < CHART_SIZE)
                     {
                         mMutex.WaitOne();
                         mAccumulatedValues.Add(debugInfo.fps);
@@ -90,16 +89,33 @@ public class Monitor
         }
     }
 
+    private static void BuildChart(ref Bitmap bitmap, string title, Brush brush)
+    {
+        InitializeBitmap(ref bitmap, Color.White, new Rectangle(0, 0, IMAGE_SIZE, IMAGE_SIZE));
+
+        int borderSize = IMAGE_SIZE/20;
+
+        Graphics g = Graphics.FromImage(bitmap);
+        RectangleF titleRect = new RectangleF(borderSize, borderSize, borderSize*2, borderSize);
+        RectangleF unitRect  = new RectangleF(IMAGE_SIZE/2, IMAGE_SIZE-(borderSize*2), (IMAGE_SIZE/2) + borderSize, IMAGE_SIZE-(borderSize*2));
+        g.DrawString(title, new Font("Helvetica",16), brush, titleRect);
+        g.DrawString("Time (s)", new Font("Helvetica",16), Brushes.Black, unitRect);
+        g.Flush();
+    }
+
     public static int Main(String[] args)
     {
         ArrayList data = new ArrayList();
         Bitmap bitmap = new Bitmap(IMAGE_SIZE, IMAGE_SIZE);
+        BuildChart(ref bitmap, "FPS", Brushes.BlueViolet);
+
+        Rectangle rect = new Rectangle((IMAGE_SIZE-CHART_SIZE), 0, CHART_SIZE, CHART_SIZE);
         new Thread(() => {
             while(true)
             {
                 if(mAccumulatedValues.Count == 0) continue;
 
-                InitializeBitmap(ref bitmap);
+                InitializeBitmap(ref bitmap, Color.White, rect);
 
                 mMutex.WaitOne();
                 int average = 0;
@@ -111,17 +127,24 @@ public class Monitor
                 mAccumulatedValues.Clear();
                 mMutex.ReleaseMutex();
 
-                int count = IMAGE_SIZE/32; //History in seconds
+                int count = CHART_SIZE/32; //History in seconds
                 while(count-- > 0)
                     data.Add(average);
-                while(data.Count > IMAGE_SIZE)
+                while(data.Count > CHART_SIZE)
                     data.RemoveAt(0);
 
                 int current = 0;
-                int start = IMAGE_SIZE - data.Count;
+                int start = (IMAGE_SIZE-CHART_SIZE) + (CHART_SIZE - data.Count);
                 foreach(int value in data)
                 {
-                    bitmap.SetPixel(start + current, IMAGE_SIZE - value, Color.Black);
+                    int xValue = start + current;
+                    int yValue = (CHART_SIZE - value)-2;
+
+                    int weight = 5;
+                    while(weight-- > 0)
+                    {
+                        bitmap.SetPixel(xValue, yValue++, Color.BlueViolet);
+                    }
                     current++;
                 }
                 bitmap.Save("Chart.png");
