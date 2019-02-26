@@ -13,6 +13,8 @@ public class Monitor
     private const int IMAGE_SIZE = 640;
     private const int CHART_SIZE = 512;
     private const int MINIMUM_RANGE = 32;
+    private const int BORDER_SIZE = IMAGE_SIZE/20;
+    private static Color AXIS_COLOR = Color.LightGray;
     private static Mutex mMutex = new Mutex();
     private static ArrayList mAccumulatedFpsValues = new ArrayList();
     private static ArrayList mAccumulatedVertValues = new ArrayList();
@@ -94,15 +96,15 @@ public class Monitor
 
     private static void BuildChart(ref Bitmap bitmap, string title, Brush brush)
     {
-        InitializeBitmap(ref bitmap, Color.LightGray, new Rectangle(0, 0, IMAGE_SIZE, IMAGE_SIZE));
-
-        int borderSize = IMAGE_SIZE/20;
+        InitializeBitmap(ref bitmap, AXIS_COLOR, new Rectangle(0, 0, IMAGE_SIZE, IMAGE_SIZE));
 
         Graphics g = Graphics.FromImage(bitmap);
-        RectangleF titleRect = new RectangleF(borderSize, IMAGE_SIZE-(borderSize*2), borderSize*2, IMAGE_SIZE-(borderSize*2));
-        RectangleF unitRect  = new RectangleF(IMAGE_SIZE/2, IMAGE_SIZE-(borderSize*2), (IMAGE_SIZE/2) + borderSize, IMAGE_SIZE-(borderSize*2));
+        RectangleF titleRect = new RectangleF(BORDER_SIZE, IMAGE_SIZE-(BORDER_SIZE*2), BORDER_SIZE*2, IMAGE_SIZE-(BORDER_SIZE*2));
+        RectangleF unitRect  = new RectangleF(IMAGE_SIZE/2, IMAGE_SIZE-(BORDER_SIZE*2), (IMAGE_SIZE/2) + BORDER_SIZE, IMAGE_SIZE-(BORDER_SIZE*2));
+        RectangleF zeroRect  = new RectangleF(BORDER_SIZE*3, CHART_SIZE-BORDER_SIZE, BORDER_SIZE*4, CHART_SIZE-BORDER_SIZE);
         g.DrawString(title, new Font("Helvetica",16), brush, titleRect);
         g.DrawString("Time (s)", new Font("Helvetica",16), Brushes.Black, unitRect);
+        g.DrawString("0", new Font("Helvetica",16), brush, zeroRect);
         g.Flush();
     }
 
@@ -154,6 +156,7 @@ public class Monitor
         Bitmap bitmap = new Bitmap(IMAGE_SIZE, IMAGE_SIZE);
         BuildChart(ref bitmap, "FPS", Brushes.BlueViolet);
 
+        double previousScale = 1.0f;
         Rectangle rect = new Rectangle((IMAGE_SIZE-CHART_SIZE), 0, CHART_SIZE, CHART_SIZE);
         new Thread(() => {
             while(true)
@@ -164,6 +167,19 @@ public class Monitor
 
                 mMutex.WaitOne();
                 double scale = PolishData(ref fpsData);
+
+                if(scale != previousScale)
+                {
+                    BuildChart(ref bitmap, "FPS", Brushes.BlueViolet);
+
+                    Graphics g = Graphics.FromImage(bitmap);
+                    RectangleF maxRect = new RectangleF(Convert.ToSingle(BORDER_SIZE*1.5), 0, Convert.ToSingle(BORDER_SIZE*3.5), 0);
+                    g.DrawString((CHART_SIZE/scale).ToString(), new Font("Helvetica",16), Brushes.BlueViolet, maxRect);
+                    g.Flush();
+
+                    previousScale = scale;
+                }
+
                 int current = 0;
                 int start = (IMAGE_SIZE-CHART_SIZE) + (CHART_SIZE - fpsData.Count);
                 foreach(int value in fpsData)
@@ -180,7 +196,7 @@ public class Monitor
                     }
                     current++;
                 }
-                bitmap.Save("Chart.png");
+                bitmap.Save("FPS.png");
                 Thread.Sleep(1000);
             }
         }).Start();
