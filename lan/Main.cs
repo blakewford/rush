@@ -99,7 +99,7 @@ public class Monitor
         InitializeBitmap(ref bitmap, AXIS_COLOR, new Rectangle(0, 0, IMAGE_SIZE, IMAGE_SIZE));
 
         Graphics g = Graphics.FromImage(bitmap);
-        RectangleF titleRect = new RectangleF(BORDER_SIZE, IMAGE_SIZE-(BORDER_SIZE*2), BORDER_SIZE*2, IMAGE_SIZE-(BORDER_SIZE*2));
+        RectangleF titleRect = new RectangleF(BORDER_SIZE, IMAGE_SIZE-(BORDER_SIZE*2), BORDER_SIZE*4, IMAGE_SIZE-(BORDER_SIZE*2));
         RectangleF unitRect  = new RectangleF(IMAGE_SIZE/2, IMAGE_SIZE-(BORDER_SIZE*2), (IMAGE_SIZE/2) + BORDER_SIZE, IMAGE_SIZE-(BORDER_SIZE*2));
         RectangleF zeroRect  = new RectangleF(BORDER_SIZE*3, CHART_SIZE-BORDER_SIZE, BORDER_SIZE*4, CHART_SIZE-BORDER_SIZE);
         g.DrawString(title, new Font("Helvetica",16), brush, titleRect);
@@ -108,15 +108,15 @@ public class Monitor
         g.Flush();
     }
 
-    private static double PolishData(ref ArrayList data)
+    private static double PolishData(ArrayList accumulated, ref ArrayList data)
     {
         int average = 0;
-        foreach(int value in mAccumulatedFpsValues)
+        foreach(int value in accumulated)
         {
             average += value;
         }
-        average /= mAccumulatedFpsValues.Count;
-        mAccumulatedFpsValues.Clear();
+        average /= accumulated.Count;
+        accumulated.Clear();
         mMutex.ReleaseMutex();
         int count = CHART_SIZE/32; //History in seconds
         while(count-- > 0)
@@ -149,57 +149,57 @@ public class Monitor
 //        return 1; //scale
     }
 
+    private static void ChartThread(ref Bitmap bitmap, string title, Brush brush, ArrayList accumulated, ArrayList data)
+    {
+        double previousScale = 1.0f;
+        Rectangle rect = new Rectangle((IMAGE_SIZE-CHART_SIZE), 0, CHART_SIZE, CHART_SIZE);
+        while(true)
+        {
+            if(accumulated.Count == 0) continue;
+
+            InitializeBitmap(ref bitmap, Color.White, rect);
+            mMutex.WaitOne();
+            double scale = PolishData(accumulated, ref data);
+            if(scale != previousScale)
+            {
+                BuildChart(ref bitmap, title, brush);
+                Graphics g = Graphics.FromImage(bitmap);
+                RectangleF maxRect = new RectangleF(Convert.ToSingle(BORDER_SIZE*1.5), 0, Convert.ToSingle(BORDER_SIZE*3.5), 0);
+                g.DrawString((CHART_SIZE/scale).ToString(), new Font("Helvetica",16), brush, maxRect);
+                g.Flush();
+                previousScale = scale;
+            }
+            int current = 0;
+            int start = (IMAGE_SIZE-CHART_SIZE) + (CHART_SIZE - data.Count);
+            foreach(int value in data)
+            {
+                int scaledValue = Convert.ToInt32(value*scale);
+                int xValue = start + current;
+                int yValue = (CHART_SIZE - scaledValue - 2);
+                int weight = 5;
+                while(weight-- > 0)
+                {
+                    if(yValue > 0 && yValue < CHART_SIZE)
+                        bitmap.SetPixel(xValue, yValue++, new Pen(brush).Color);
+                }
+                current++;
+            }
+            bitmap.Save(title + ".png");
+            Thread.Sleep(1000);
+        }
+    }
+
     public static int Main(String[] args)
     {
         ArrayList fpsData = new ArrayList();
         ArrayList vertData = new ArrayList();
-        Bitmap bitmap = new Bitmap(IMAGE_SIZE, IMAGE_SIZE);
-        BuildChart(ref bitmap, "FPS", Brushes.BlueViolet);
+        Bitmap fpsBitmap = new Bitmap(IMAGE_SIZE, IMAGE_SIZE);
+        Bitmap vertBitmap = new Bitmap(IMAGE_SIZE, IMAGE_SIZE);
+        BuildChart(ref fpsBitmap, "FPS", Brushes.BlueViolet);
+        BuildChart(ref vertBitmap, "Verticies", Brushes.BlueViolet);
 
-        double previousScale = 1.0f;
-        Rectangle rect = new Rectangle((IMAGE_SIZE-CHART_SIZE), 0, CHART_SIZE, CHART_SIZE);
-        new Thread(() => {
-            while(true)
-            {
-                if(mAccumulatedFpsValues.Count == 0) continue;
-
-                InitializeBitmap(ref bitmap, Color.White, rect);
-
-                mMutex.WaitOne();
-                double scale = PolishData(ref fpsData);
-
-                if(scale != previousScale)
-                {
-                    BuildChart(ref bitmap, "FPS", Brushes.BlueViolet);
-
-                    Graphics g = Graphics.FromImage(bitmap);
-                    RectangleF maxRect = new RectangleF(Convert.ToSingle(BORDER_SIZE*1.5), 0, Convert.ToSingle(BORDER_SIZE*3.5), 0);
-                    g.DrawString((CHART_SIZE/scale).ToString(), new Font("Helvetica",16), Brushes.BlueViolet, maxRect);
-                    g.Flush();
-
-                    previousScale = scale;
-                }
-
-                int current = 0;
-                int start = (IMAGE_SIZE-CHART_SIZE) + (CHART_SIZE - fpsData.Count);
-                foreach(int value in fpsData)
-                {
-                    int scaledValue = Convert.ToInt32(value*scale);
-
-                    int xValue = start + current;
-                    int yValue = (CHART_SIZE - scaledValue - 2);
-                    int weight = 5;
-                    while(weight-- > 0)
-                    {
-                        if(yValue > 0 && yValue < CHART_SIZE)
-                            bitmap.SetPixel(xValue, yValue++, Color.BlueViolet);
-                    }
-                    current++;
-                }
-                bitmap.Save("FPS.png");
-                Thread.Sleep(1000);
-            }
-        }).Start();
+        new Thread(() => ChartThread(ref fpsBitmap, "FPS", Brushes.BlueViolet, mAccumulatedFpsValues, fpsData)).Start();
+        new Thread(() => ChartThread(ref vertBitmap, "Verticies", Brushes.CornflowerBlue, mAccumulatedVertValues, vertData)).Start();
 
         foreach(IPAddress address in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
         {
