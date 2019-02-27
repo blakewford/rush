@@ -56,12 +56,12 @@ public class Monitor
             socket.Bind(new IPEndPoint(address, 8080));
             socket.Listen(1);
 
-            Socket client = socket.Accept();
-
             byte[] data = new Byte[64];
             var deserializer = new JavaScriptSerializer();
             while(true)
             {
+                Socket client = socket.Accept();
+                client.NoDelay = true;
                 Console.WriteLine("Ready...");
 
                 UInt16 size = 0;
@@ -85,8 +85,8 @@ public class Monitor
                         mMutex.ReleaseMutex();
                     }
                 }
+                client.Close();
             }
-//            client.Close();
         }
         catch(Exception)
         {

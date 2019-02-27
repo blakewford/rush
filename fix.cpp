@@ -2,8 +2,6 @@
 #include <algorithm>
 int32_t SDL_Init();
 extern bool gKeepGoing;
-int gSocket = -1;
-bool gDbgAttached = false;
 void* RenderThread(void* buffer);
 uint32_t gTexture[WIDTH*HEIGHT];
 extern Arduboy2Base arduboy;
@@ -56,22 +54,6 @@ void init()
 #endif
 
 #ifndef __AVR__
-    struct sockaddr_in address;
-    memset(&address, '0', sizeof(address));
-
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-
-    address.sin_family = AF_INET;
-    address.sin_port = htons(DEBUG_PORT);
-
-    address.sin_addr.s_addr = inet_addr("");
-
-    if(connect(sock, (struct sockaddr *)&address, sizeof(address)) == 0)
-    {
-        gSocket = sock;
-        gDbgAttached = true;
-    }
-
     if(SDL_Init() < 0) return;
 #endif
 }
