@@ -7,3 +7,6 @@
 [submodule "Arduboy2"]
 	path = Arduboy2
 	url = https://github.com/MLXXXp/Arduboy2.git
+[submodule "Esplora"]
+	path = Esplora
+	url = https://github.com/arduino-libraries/Esplora.git
