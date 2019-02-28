@@ -335,7 +335,7 @@
   <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
   <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-  <avrgcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -Wno-pragmas -DATCA_NO_HEAP -DATCA_NO_POLL -DATCA_HAL_I2C -DATCA_PRINTF -DTCPIP_BSD -Os</avrgcc.compiler.miscellaneous.OtherFlags>
+  <avrgcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -Wno-pragmas -DATCA_NO_HEAP -DATCA_NO_POLL -DATCA_HAL_I2C -DATCA_PRINTF -DTCPIP_BSD -Os -flto</avrgcc.compiler.miscellaneous.OtherFlags>
   <avrgcccpp.compiler.directories.IncludePaths>
     <ListValues>
       <Value>../Config</Value>
@@ -361,8 +361,9 @@
   <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
   <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcccpp.compiler.warnings.InhibitAllWarnings>True</avrgcccpp.compiler.warnings.InhibitAllWarnings>
-  <avrgcccpp.compiler.miscellaneous.OtherFlags>-std=c++11 -include ../model/port/port.h -include ../model/port/sys/types.h -fno-threadsafe-statics -lprintf_flt -include dummy_pins.h</avrgcccpp.compiler.miscellaneous.OtherFlags>
+  <avrgcccpp.compiler.miscellaneous.OtherFlags>-std=c++11 -include ../model/port/port.h -include ../model/port/sys/types.h -fno-threadsafe-statics -lprintf_flt -include dummy_pins.h -flto</avrgcccpp.compiler.miscellaneous.OtherFlags>
   <avrgcccpp.linker.general.UseVprintfLibrary>True</avrgcccpp.linker.general.UseVprintfLibrary>
+  <avrgcccpp.linker.miscellaneous.LinkerFlags>-flto</avrgcccpp.linker.miscellaneous.LinkerFlags>
   <avrgcccpp.assembler.general.IncludePaths>
     <ListValues>
       <Value>../utils</Value>

@@ -85,14 +85,14 @@ void application_init()
 
 	wifi_init(wifiConnectionStateChanged, mode);
 
-#ifdef CLOUD
 	if (mode > 0) {
+#ifdef CLOUD
 		CLOUD_init(attDeviceID);
+#else
+		LAN_init(attDeviceID);
+#endif
 		scheduler_timeout_create(&MAIN_dataTasksTimer, MAIN_DATATASK_INTERVAL);
 	}
-#else
-	LAN_init(attDeviceID);
-#endif
 }
 
 // React to the WIFI state change here. Status of 1 means connected, Status of 0 means disconnected
