@@ -7,7 +7,7 @@
 #include <chrono>
 using namespace std::chrono;
 
-#include "RUSH/RUSH.ino"
+#include "SHRUN_AB/SHRUN_AB.ino"
 
 bool gKeepGoing = true;
 const int32_t SCALE = 8;
@@ -603,7 +603,110 @@ void Arduboy2Audio::saveOnOff()
 unsigned long int getImageSize(const uint8_t *bitmap)
 {
     unsigned long int size = 0;
+
+    if(bitmap == T_arg)
+    {
+        size = sizeof(T_arg);
+    }
+    else if(bitmap == spotLight)
+    {
+        size = sizeof(spotLight);
+    }
+    else if(bitmap == menuTitle)
+    {
+        size = sizeof(menuTitle);
+    }
+    else if(bitmap == menuItems)
+    {
+        size = sizeof(menuItems);
+    }
+    else if(bitmap == menuYesNo)
+    {
+        size = sizeof(menuYesNo);
+    }
+    else if(bitmap == menuShade)
+    {
+        size = sizeof(menuShade);
+    }
+    else if(bitmap == menuInfo)
+    {
+        size = sizeof(menuInfo);
+    }
+    else if(bitmap == qrcode)
+    {
+        size = sizeof(qrcode);
+    }
+    else if(bitmap == pause)
+    {
+        size = sizeof(pause);
+    }
+    else if(bitmap == gameOver)
+    {
+        size = sizeof(gameOver);
+    }
+    else if(bitmap == life)
+    {
+        size = sizeof(life);
+    }
+    else if(bitmap == score)
+    {
+        size = sizeof(score);
+    }
+    else if(bitmap == lifeBar)
+    {
+        size = sizeof(lifeBar);
+    }
+    else if(bitmap == candleFlame)
+    {
+        size = sizeof(candleFlame);
+    }
+    else if(bitmap == candleTip)
+    {
+        size = sizeof(candleTip);
+    }
+    else if(bitmap == shadowRunner)
+    {
+        size = sizeof(shadowRunner);
+    }
+    else if(bitmap == shadowRunnerEyes)
+    {
+        size = sizeof(shadowRunnerEyes);
+    }
+    else if(bitmap == heart)
+    {
+        size = sizeof(heart);
+    }
+    else if(bitmap == stone_plus_mask)
+    {
+        size = sizeof(stone_plus_mask);
+    }
+    else if(bitmap == bird)
+    {
+        size = sizeof(bird);
+    }
+    else if(bitmap == numbers)
+    {
+        size = sizeof(numbers);
+    }
+    else if(bitmap == backGrounds)
+    {
+        size = sizeof(backGrounds);
+    }
+    else if(bitmap == forgroundTrees)
+    {
+        size = sizeof(forgroundTrees);
+    }
+    else if(bitmap == fences_plus_mask)
+    {
+        size = sizeof(fences_plus_mask);
+    }
+    else
+    {
+        assert(0);
+    }
+
     return size;
+
 }
 
 void Sprites::drawSelfMasked(int16_t x, int16_t y, const uint8_t *bitmap, uint8_t frame)
