@@ -25,6 +25,11 @@ OF FEES, IF ANY, THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS
 SOFTWARE.
 */
 
+long random(long howsmall, long howbig)
+{
+    return 0;
+}
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

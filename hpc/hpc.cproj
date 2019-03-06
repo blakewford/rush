@@ -355,13 +355,14 @@
       <Value>../../ArduinoCore-avr/libraries/EEPROM/src</Value>
       <Value>../../Arduboy2/src</Value>
       <Value>../../engine</Value>
+      <Value>../../SHRUN_AB</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.level>Optimize most (-O3)</avrgcccpp.compiler.optimization.level>
   <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
   <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcccpp.compiler.warnings.InhibitAllWarnings>True</avrgcccpp.compiler.warnings.InhibitAllWarnings>
-  <avrgcccpp.compiler.miscellaneous.OtherFlags>-std=c++11 -include ../model/port/port.h -include ../model/port/sys/types.h -fno-threadsafe-statics -lprintf_flt -include dummy_pins.h -flto</avrgcccpp.compiler.miscellaneous.OtherFlags>
+  <avrgcccpp.compiler.miscellaneous.OtherFlags>-std=c++11 -include ../model/port/port.h -include ../model/port/sys/types.h -fno-threadsafe-statics -lprintf_flt -include dummy_pins.h -flto -fpermissive</avrgcccpp.compiler.miscellaneous.OtherFlags>
   <avrgcccpp.linker.general.UseVprintfLibrary>True</avrgcccpp.linker.general.UseVprintfLibrary>
   <avrgcccpp.linker.miscellaneous.LinkerFlags>-flto</avrgcccpp.linker.miscellaneous.LinkerFlags>
   <avrgcccpp.assembler.general.IncludePaths>
@@ -463,7 +464,7 @@
     <Folder Include="mqtt\mqtt_comm_bsd\" />
     <Folder Include="mqtt\mqtt_core\" />
     <Folder Include="mqtt\mqtt_exchange_buffer\" />
-    <Folder Include="rush" />
+    <Folder Include="shrun" />
     <Folder Include="src\" />
     <Folder Include="utils\" />
     <Folder Include="utils\assembler\" />
@@ -489,9 +490,9 @@
     <Folder Include="winc\spi_flash\source\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\RUSH\RUSH.ino">
+    <None Include="..\SHRUN_AB\SHRUN_AB.ino">
       <SubType>compile</SubType>
-      <Link>rush\RUSH.ino</Link>
+      <Link>shrun\SHRUN_AB.ino</Link>
     </None>
     <None Include="cryptoauthlib\lib\basic\README.md">
       <SubType>compile</SubType>
@@ -549,21 +550,29 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Arduboy2\src/Arduboy2.cpp">
+    <Compile Include="..\Arduboy2\src\Arduboy2Audio.cpp">
       <SubType>compile</SubType>
-      <Link>rush\Arduboy2.cpp</Link>
+      <Link>shrun\Arduboy2Audio.cpp</Link>
     </Compile>
-    <Compile Include="..\Arduboy2\src/Arduboy2Core.cpp">
+    <Compile Include="..\Arduboy2\src\Arduboy2.cpp">
       <SubType>compile</SubType>
-      <Link>rush\Arduboy2Core.cpp</Link>
+      <Link>shrun\Arduboy2.cpp</Link>
     </Compile>
-    <Compile Include="..\model\Models.cpp">
+    <Compile Include="..\Arduboy2\src\Arduboy2Core.cpp">
       <SubType>compile</SubType>
-      <Link>rush\Models.cpp</Link>
+      <Link>shrun\Arduboy2Core.cpp</Link>
+    </Compile>
+    <Compile Include="..\Arduboy2\src\Sprites.cpp">
+      <SubType>compile</SubType>
+      <Link>shrun\Sprites.cpp</Link>
+    </Compile>
+    <Compile Include="..\ArduboyTones\src\ArduboyTones.cpp">
+      <SubType>compile</SubType>
+      <Link>shrun\ArduboyTones.cpp</Link>
     </Compile>
     <Compile Include="..\model\port.c">
       <SubType>compile</SubType>
-      <Link>rush\port.c</Link>
+      <Link>shrun\port.c</Link>
     </Compile>
     <Compile Include="application_manager.c">
       <SubType>compile</SubType>

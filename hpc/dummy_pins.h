@@ -4,9 +4,14 @@
 
 #define DUMMY_REGISTER (0x1084)
 
+#define TIMSK3   (*(register8_t *)DUMMY_REGISTER)
+#define OCIE3A   (*(register8_t *)DUMMY_REGISTER)
+#define CS31     (*(register8_t *)DUMMY_REGISTER)
+
 #define WGM00    (*(register8_t *)DUMMY_REGISTER)
 #define WGM01    (*(register8_t *)DUMMY_REGISTER)
 #define WGM10    (*(register8_t *)DUMMY_REGISTER)
+#define WGM32    (*(register8_t *)DUMMY_REGISTER)
 #define WDE      (*(register8_t *)DUMMY_REGISTER)
 #define WDCE     (*(register8_t *)DUMMY_REGISTER)
 #define WDTCSR   (*(register8_t *)DUMMY_REGISTER)
@@ -17,7 +22,9 @@
 #define UDCON    (*(register8_t *)DUMMY_REGISTER)
 #define TCCR0A   (*(register8_t *)DUMMY_REGISTER)
 #define TCCR1A   (*(register8_t *)DUMMY_REGISTER)
-			     
+#define TCCR3A   (*(register8_t *)DUMMY_REGISTER)
+#define TCCR3B   (*(register8_t *)DUMMY_REGISTER)
+
 #define SPSR     (*(register8_t *)DUMMY_REGISTER)
 #define SPIF     (*(register8_t *)DUMMY_REGISTER)
 #define SPI2X    (*(register8_t *)DUMMY_REGISTER)
@@ -31,9 +38,14 @@
 #define REFS0    (*(register8_t *)DUMMY_REGISTER)
 #define REFS1    (*(register8_t *)DUMMY_REGISTER)
 
-#define DDRB     (*(register8_t *)DUMMY_REGISTER)	     
+#define DDRB     (*(register8_t *)DUMMY_REGISTER)
 #define PINB     (*(register8_t *)DUMMY_REGISTER)
-			     
+
+#define DDRC     (*(register8_t *)DUMMY_REGISTER)
+
+#define PORTC6   (*(register8_t *)DUMMY_REGISTER)
+#define PORTC7   (*(register8_t *)DUMMY_REGISTER)
+
 #define PORTB0   (*(register8_t *)DUMMY_REGISTER)
 #define PORTB1   (*(register8_t *)DUMMY_REGISTER)
 #define PORTB2   (*(register8_t *)DUMMY_REGISTER)
@@ -76,6 +88,7 @@
 #define PRTWI    (*(register8_t *)DUMMY_REGISTER)
 
 #define OCR0A    (*(register8_t *)DUMMY_REGISTER)
+#define OCR3A    (*(register8_t *)DUMMY_REGISTER)
 #define OCR1AL   (*(register8_t *)DUMMY_REGISTER)
 #define OCR1BL   (*(register8_t *)DUMMY_REGISTER)
 

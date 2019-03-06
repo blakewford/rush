@@ -13,6 +13,9 @@
 #undef PORTB
 #define PORTB (*(PORT_t *) 0x0420)
 
+#undef PORTC
+#define PORTC (*(PORT_t *) 0x0440)
+
 #undef PORTD
 #define PORTD (*(PORT_t *) 0x0460)
 

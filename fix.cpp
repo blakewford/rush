@@ -12,7 +12,7 @@ extern Arduboy2Base arduboy;
 
 #define DEBUG_PORT 8080
 #else
-#include "RUSH/RUSH.ino"
+#include "SHRUN_AB/SHRUN_AB.ino"
 const bool gKeepGoing = true;
 #include <avr/interrupt.h>
 #endif
@@ -80,10 +80,6 @@ namespace std
     }
 }
 #endif
-
-void Arduboy2Audio::begin()
-{
-}
 
 void fillTriangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3, uint8_t color)
 {

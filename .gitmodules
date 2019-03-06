@@ -10,3 +10,6 @@
 [submodule "TFT"]
 	path = TFT
 	url = https://github.com/arduino-libraries/TFT.git
+[submodule "ArduboyTones"]
+	path = ArduboyTones
+	url = https://github.com/MLXXXp/ArduboyTones.git
