@@ -7,6 +7,3 @@
 [submodule "Arduboy2"]
 	path = Arduboy2
 	url = https://github.com/MLXXXp/Arduboy2.git
-[submodule "TFT"]
-	path = TFT
-	url = https://github.com/arduino-libraries/TFT.git
