@@ -13,7 +13,7 @@ extern Arduboy2Base arduboy;
 #define DEBUG_PORT 8080
 #else
 #include "RUSH/RUSH.ino"
-const bool gKeepGoing = true;
+bool gKeepGoing = true;
 #include <avr/interrupt.h>
 #endif
 
