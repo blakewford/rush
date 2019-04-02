@@ -54,7 +54,7 @@ void init()
 #endif
 
 #ifndef __AVR__
-    if(SDL_Init() < 0) return;
+//    if(SDL_Init() < 0) return;
 #endif
 }
 

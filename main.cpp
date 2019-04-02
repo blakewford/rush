@@ -46,6 +46,8 @@ void rush()
     }
 #ifdef __AVR__
     asm("BREAK");
+#else
+    exit(0);
 #endif
 }
 
