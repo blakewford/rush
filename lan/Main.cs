@@ -103,9 +103,9 @@ public class Monitor
         RectangleF titleRect = new RectangleF(BORDER_SIZE, IMAGE_SIZE-(BORDER_SIZE*2), BORDER_SIZE*4, IMAGE_SIZE-(BORDER_SIZE*2));
         RectangleF unitRect  = new RectangleF(IMAGE_SIZE/2, IMAGE_SIZE-(BORDER_SIZE*2), (IMAGE_SIZE/2) + BORDER_SIZE, IMAGE_SIZE-(BORDER_SIZE*2));
         RectangleF zeroRect  = new RectangleF(BORDER_SIZE*3, CHART_SIZE-BORDER_SIZE, BORDER_SIZE*4, CHART_SIZE-BORDER_SIZE);
-        g.DrawString(title, new Font(UNIVERSAL_FONT, 24, FontStyle.Regular, GraphicsUnit.Pixel), brush, titleRect);
-        g.DrawString("Time (s)", new Font(UNIVERSAL_FONT, 24, FontStyle.Regular, GraphicsUnit.Pixel), Brushes.Black, unitRect);
-        g.DrawString("0", new Font(UNIVERSAL_FONT, 24, FontStyle.Regular, GraphicsUnit.Pixel), brush, zeroRect);
+        g.DrawString(title, new Font(UNIVERSAL_FONT, 20, FontStyle.Regular, GraphicsUnit.Pixel), brush, titleRect);
+        g.DrawString("Time (s)", new Font(UNIVERSAL_FONT, 20, FontStyle.Regular, GraphicsUnit.Pixel), Brushes.Black, unitRect);
+        g.DrawString("0", new Font(UNIVERSAL_FONT, 20, FontStyle.Regular, GraphicsUnit.Pixel), brush, zeroRect);
         g.Flush();
     }
 
@@ -166,7 +166,7 @@ public class Monitor
                 BuildChart(ref bitmap, title, brush);
                 Graphics g = Graphics.FromImage(bitmap);
                 RectangleF maxRect = new RectangleF(Convert.ToSingle(BORDER_SIZE*1.5), 0, Convert.ToSingle(BORDER_SIZE*3.5), 0);
-                g.DrawString((CHART_SIZE/scale).ToString(), new Font(UNIVERSAL_FONT, 24, FontStyle.Regular, GraphicsUnit.Pixel), brush, maxRect);
+                g.DrawString((CHART_SIZE/scale).ToString(), new Font(UNIVERSAL_FONT, 20, FontStyle.Regular, GraphicsUnit.Pixel), brush, maxRect);
                 g.Flush();
                 previousScale = scale;
             }
