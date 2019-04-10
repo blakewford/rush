@@ -65,6 +65,7 @@ void drawRunner()
 
 void checkRunner()
 {
+  lifePlayer = 63;
   if (lifePlayer < 0)
   {
     gameState = STATE_GAME_OVER;

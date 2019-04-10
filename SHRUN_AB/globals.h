@@ -27,7 +27,7 @@ Sprites sprites;
 ArduboyTones sound(arduboy.audio.enabled);
 
 //determines the state of the game
-byte gameState = STATE_MENU_INTRO;   // start the game with the TEAM a.r.g. logo
+byte gameState = STATE_GAME_INIT_LEVEL;   // start the game with the TEAM a.r.g. logo
 //generic variable to store menuSelection (on screens)
 byte menuSelection = STATE_MENU_PLAY; // PLAY menu item is pre-selected
 byte globalCounter = 0;

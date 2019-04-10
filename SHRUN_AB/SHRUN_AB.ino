@@ -13,6 +13,8 @@
 
 */
 
+extern uint16_t gReportedVerts;
+
 //determine the game
 #define GAME_ID 15
 
@@ -40,7 +42,7 @@ const FunctionPointer PROGMEM mainGameLoop[] = {
 };
 
 void setup () {
-  arduboy.begin();
+//  arduboy.begin();
   arduboy.setFrameRate(60);
   arduboy.initRandomSeed();
 }
@@ -55,5 +57,7 @@ void loop() {
   ((FunctionPointer)(mainGameLoop[gameState]))();
 #endif
   arduboy.display();
+  gameState = STATE_GAME_PLAYING;
+  gReportedVerts = 1;
 }
 
