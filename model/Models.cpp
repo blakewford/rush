@@ -23,11 +23,37 @@ enum parse_state: int8_t
     UNKNOWN
 };
 
+void MatMul3x1(float* C, const float* A, const float* B)
+{
+    C[0] = (A[0]*B[0]) + (A[1]*B[1]) + (A[2]*B[2]);
+    C[1] = (A[3]*B[0]) + (A[4]*B[1]) + (A[5]*B[2]);
+    C[2] = (A[6]*B[0]) + (A[7]*B[1]) + (A[8]*B[2]);
+}
+
+void MatMul4x1(float* C, const float* A, const float* B)
+{
+    C[0] = (A[0]*B[0]) + (A[1]*B[1]) + (A[2]*B[2]) + (A[3]*B[3]);
+    C[1] = (A[4]*B[0]) + (A[5]*B[1]) + (A[6]*B[2]) + (A[7]*B[3]);
+    C[2] = (A[8]*B[0]) + (A[9]*B[1]) + (A[10]*B[2]) + (A[11]*B[3]);
+    C[3] = (A[12]*B[0]) + (A[13]*B[1]) + (A[14]*B[2]) + (A[15]*B[3]);
+}
+
 void TensorPort(const param& A, const param& B, float* C)
 {
     assert(A.shape[1] == B.shape[0]);
 //    MatMul(NULL, C, (float*)A.value, (float*)B.value, A.shape[0], B.shape[1], A.shape[1], true, true);
+#ifdef PHASE1
+    if(A.shape[0] == 3)
+    {
+        MatMul3x1(C, (float*)A.value, (float*)B.value);
+    }
+    else
+    {
+        MatMul4x1(C, (float*)A.value, (float*)B.value);
+    }
+#else
     MatMul(C, (float*)A.value, (float*)B.value, A.shape[0]);
+#endif
 }
 
 void rotationEntry(const int16_t angle, param& parameter, rotation_axis axis)
