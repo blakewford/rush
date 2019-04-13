@@ -32,7 +32,7 @@ pgm gScreen;
 uint64_t gFrame = 0;
 system_clock::time_point gSyncPoint;
 system_clock::time_point gAudioSyncPoint;
-milliseconds gFrameRate = milliseconds(1000);
+milliseconds gFrameRate = milliseconds(0);
 
 bool inRange(int32_t x, int32_t y)
 {
@@ -313,7 +313,7 @@ void Arduboy2Base::begin()
 
 void Arduboy2Base::setFrameRate(uint8_t rate)
 {
-    gFrameRate = milliseconds(1000/rate);
+//    gFrameRate = milliseconds(1000/rate);
 }
 
 void Arduboy2Base::initRandomSeed()
