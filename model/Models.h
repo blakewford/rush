@@ -42,6 +42,7 @@ private:
 
     static void drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color);
     static void modifyAngle(const int16_t angle, const rotation_axis axis);
+    static void modifyXAngle();
 };
 
 #endif

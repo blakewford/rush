@@ -15,8 +15,15 @@ game-phase1: $(SRC)
 	$(CC) -I/usr/include/SDL2 -gdwarf-4 -O3 -flto -std=c++11 $(SRC) $(EXTRA) -o $(GAME)-p1 -DPHASE1 -IArduinoCore-avr/variants/leonardo -I. -I./engine -I./model -Itensorflow -I./model/eigen -include port.h -Wno-narrowing -fpermissive -w -DNDEBUG -fdata-sections -ffunction-sections -Wl,--gc-sections
 
 avr-phase1:
-	make GAME=avr-rush-p1 CC=/opt/microchip/avr8-gnu-toolchain-linux_x86_64/bin/avr-g++ EXTRA="-IArduboy2/src -IArduinoCore-avr/libraries/EEPROM/src -I./model/port -include stdlib.h -include sys/types.h -include port.h -include avr/io.h -include string.h -mmcu=$(TARGET) ./model/port.c Arduboy2/src/Arduboy2Core.cpp Arduboy2/src/Arduboy2.cpp -fno-threadsafe-statics -Wl,-u,vfprintf -lprintf_flt -fshort-enums"
+	make GAME=avr-rush-p1 CC=/opt/microchip/avr8-gnu-toolchain-linux_x86_64/bin/avr-g++ EXTRA="-DPHASE1 -IArduboy2/src -IArduinoCore-avr/libraries/EEPROM/src -I./model/port -include stdlib.h -include sys/types.h -include port.h -include avr/io.h -include string.h -mmcu=$(TARGET) ./model/port.c Arduboy2/src/Arduboy2Core.cpp Arduboy2/src/Arduboy2.cpp -fno-threadsafe-statics -Wl,-u,vfprintf -lprintf_flt -fshort-enums"
 	avr-objcopy -Ielf32-avr -Oihex avr-rush-p1 rush-p1.hex
+
+game-phase2: $(SRC)
+	$(CC) -I/usr/include/SDL2 -gdwarf-4 -O3 -flto -std=c++11 $(SRC) $(EXTRA) -o $(GAME)-p2 -DPHASE2 -IArduinoCore-avr/variants/leonardo -I. -I./engine -I./model -Itensorflow -I./model/eigen -include port.h -Wno-narrowing -fpermissive -w -DNDEBUG -fdata-sections -ffunction-sections -Wl,--gc-sections
+
+avr-phase2:
+	make GAME=avr-rush-p2 CC=/opt/microchip/avr8-gnu-toolchain-linux_x86_64/bin/avr-g++ EXTRA="-DPHASE2 -IArduboy2/src -IArduinoCore-avr/libraries/EEPROM/src -I./model/port -include stdlib.h -include sys/types.h -include port.h -include avr/io.h -include string.h -mmcu=$(TARGET) ./model/port.c Arduboy2/src/Arduboy2Core.cpp Arduboy2/src/Arduboy2.cpp -fno-threadsafe-statics -Wl,-u,vfprintf -lprintf_flt -fshort-enums"
+	avr-objcopy -Ielf32-avr -Oihex avr-rush-p2 rush-p2.hex
 
 clean:
 	-@rm $(GAME)
@@ -24,4 +31,7 @@ clean:
 	-@rm rush.hex
 	-@rm $(GAME)-p1
 	-@rm avr-rush-p1
-	-@rm rush.hex-p1
+	-@rm rush-p1.hex
+	-@rm $(GAME)-p2
+	-@rm avr-rush-p2
+	-@rm rush-p2.hex

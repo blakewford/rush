@@ -42,7 +42,7 @@ void TensorPort(const param& A, const param& B, float* C)
 {
     assert(A.shape[1] == B.shape[0]);
 //    MatMul(NULL, C, (float*)A.value, (float*)B.value, A.shape[0], B.shape[1], A.shape[1], true, true);
-#ifdef PHASE1
+#if defined(PHASE1) || defined(PHASE2)
     if(A.shape[0] == 3)
     {
         MatMul3x1(C, (float*)A.value, (float*)B.value);
@@ -55,6 +55,8 @@ void TensorPort(const param& A, const param& B, float* C)
     MatMul(C, (float*)A.value, (float*)B.value, A.shape[0]);
 #endif
 }
+
+param X_AT_15_DEGREES;
 
 void rotationEntry(const int16_t angle, param& parameter, rotation_axis axis)
 {
@@ -250,12 +252,24 @@ void Models::begin()
 //    s_zAngle.value[6] = 0;
 //    s_zAngle.value[7] = 0;
     s_zAngle.value[8] = 1;
- //   s_zAngle.shape[0] = 3;
+//    s_zAngle.shape[0] = 3;
     s_zAngle.shape[1] = 3;
 
     s_Ortho.shape[0] = 4;
     s_Ortho.shape[1] = 4;
     memcpy(s_Ortho.value, ortho, 16*sizeof(float));
+
+    X_AT_15_DEGREES.value[0] = 1;
+//    X_AT_15_DEGREES.value[1] = 0;
+//    X_AT_15_DEGREES.value[2] = 0;
+//    X_AT_15_DEGREES.value[3] = 0;
+    X_AT_15_DEGREES.value[4] = 0.965925813;
+    X_AT_15_DEGREES.value[5] = 0.258819163;
+    X_AT_15_DEGREES.value[6] = -0.258819163;
+    X_AT_15_DEGREES.value[7] = 0.965925813;
+//    X_AT_15_DEGREES.value[8] = 0;
+//    X_AT_15_DEGREES.shape[0] = 3;
+    X_AT_15_DEGREES.shape[1] = 3;
 }
 
 void Models::drawModel(const float* model, int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color)
@@ -314,11 +328,34 @@ void Models::modifyAngle(const int16_t angle, const rotation_axis axis)
     }
 }
 
+void Models::modifyXAngle()
+{
+    param B;
+    int16_t current = 1;
+    int16_t count = (int16_t)copy[0];
+    while(count--)
+    {
+        int16_t start = current;
+        B.value[2] = copy[current++];
+        B.value[1] = copy[current++];
+        B.value[0] = copy[current++];
+//        B.shape[0] = 3;
+//        B.shape[1] = 1;
+        float C[3];
+        TensorPort(X_AT_15_DEGREES, B, C);
+        memcpy(&copy[start], &C[0], 3*sizeof(float));
+    }
+}
+
 void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t color)
 {
 
     modifyAngle(yAngle, Y);
+#ifdef PHASE2
+    modifyXAngle();
+#else
     modifyAngle(xAngle, X);
+#endif
 //    modifyAngle(zAngle, Z);
 
     param H;
