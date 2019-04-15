@@ -114,7 +114,7 @@ void compressed()
     printf("};");
 
     ndx = 1; //Reset past size
-    printf("\n\nconst float PROGMEM ndxToValue[] =\n{\n    ");
+    printf("\n\nconst float ndxToValue[] =\n{\n    ");
     printf("%.2f, ", (float)verts.size()/3);
     std::unordered_map<float,uint8_t>::iterator iter = values.begin();
     while(values.size() > 0)

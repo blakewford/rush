@@ -1,5 +1,9 @@
 //#include "assets.h"
+#ifdef PHASE3
+#include "truck.h"
+#else
 #include "compressed.h"
+#endif
 
 #include <Models.h>
 #include <Arduino.h>
@@ -30,7 +34,12 @@ void loop()
 
 //    models.drawModel(obj, 15, yAngle, 0, 1);
     models.drawCompressedModel(obj, ndxToValue, 15, yAngle, 0, 1);
+#ifdef PHASE3
+    yAngle+=3;
+#else
     yAngle++;
+#endif
+
 
     arduboy.display();
 }
