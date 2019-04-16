@@ -313,7 +313,7 @@ void Arduboy2Base::begin()
 
 void Arduboy2Base::setFrameRate(uint8_t rate)
 {
-//    gFrameRate = milliseconds(1000/rate);
+    gFrameRate = milliseconds(1000/rate);
 }
 
 void Arduboy2Base::initRandomSeed()
@@ -603,6 +603,31 @@ void Arduboy2Audio::saveOnOff()
 unsigned long int getImageSize(const uint8_t *bitmap)
 {
     unsigned long int size = 0;
+    if(bitmap == logo)
+    {
+        size = sizeof(logo);
+    }
+    else if(bitmap == ridge_logo)
+    {
+        size = sizeof(ridge_logo);
+    }
+    else if(bitmap == ridge)
+    {
+        size = sizeof(ridge);
+    }
+    else if(bitmap == left)
+    {
+        size = sizeof(left);
+    }
+    else if(bitmap == right)
+    {
+        size = sizeof(right);
+    }
+    else if(bitmap == overland)
+    {
+        size = sizeof(overland);
+    }
+
     return size;
 }
 
@@ -727,7 +752,7 @@ void* RenderThread(void* buffer)
                 case SDLK_a:
                     gButtonState.buttonA = true;
                     break;
-                case SDLK_b:
+                case SDLK_d:
                     gButtonState.buttonB = true;
                     break;
             }

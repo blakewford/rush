@@ -42,7 +42,7 @@ void rush()
     }
 #endif
         post();
-        gKeepGoing = false;
+//        gKeepGoing = false;
     }
 #ifdef __AVR__
     asm("BREAK");
