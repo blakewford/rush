@@ -6,7 +6,7 @@
 #include <avr/pgmspace.h>
 #endif
 
-const uint8_t PROGMEM obj[] =
+const uint8_t PROGMEM bike[] =
 {
     1,    2,    3,
     1,    4,    5,
@@ -154,7 +154,7 @@ const uint8_t PROGMEM obj[] =
     6,    11,    4,
 };
 
-const float ndxToValue[] =
+const float ndxToValueBike[] =
 {
     144.00, 2.00, 6.00, 16.00, 4.00, 10.00, -2.00, 7.00, -10.00, -16.00, -8.00, -6.00, -5.00, 
 };

@@ -6,7 +6,7 @@
 #include <avr/pgmspace.h>
 #endif
 
-const uint8_t PROGMEM obj[] =
+const uint8_t PROGMEM bus[] =
 {
     1,    2,    3,
     1,    4,    5,
@@ -238,7 +238,7 @@ const uint8_t PROGMEM obj[] =
     12,    4,    5,
 };
 
-const float ndxToValue[] =
+const float ndxToValueBus[] =
 {
     228.00, 7.00, -6.00, 16.00, 4.00, 14.00, 8.00, -16.00, -12.00, 6.00, 3.00, -3.00, -7.00, 
 };

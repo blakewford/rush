@@ -627,6 +627,18 @@ unsigned long int getImageSize(const uint8_t *bitmap)
     {
         size = sizeof(overland);
     }
+    else if(bitmap == baja)
+    {
+        size = sizeof(baja);
+    }
+    else if(bitmap == burningman)
+    {
+        size = sizeof(burningman);
+    }
+    else if(bitmap == moto)
+    {
+        size = sizeof(moto);
+    }
 
     return size;
 }

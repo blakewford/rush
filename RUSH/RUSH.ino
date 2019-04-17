@@ -1,9 +1,8 @@
 //#include "assets.h"
-#ifdef PHASE3
+#include "bus.h"
+#include "bike.h"
 #include "truck.h"
-#else
 #include "compressed.h"
-#endif
 
 #include <Models.h>
 #include <Arduino.h>
@@ -36,10 +35,13 @@ void setup()
     arduboy.initRandomSeed();
 }
 
-void drawLandscape(int8_t offset)
+void drawLandscape(int8_t offset, bool branded)
 {
-    sprites.drawSelfMasked(offset, 0, ridge_logo, 0);
-    sprites.drawSelfMasked(32, 0, logo, 0);
+    sprites.drawSelfMasked(offset, 0, branded ? ridge_logo: ridge, 0);
+    if(branded)
+    {
+        sprites.drawSelfMasked(32, 0, logo, 0);
+    }
     uint16_t count = 16;
 
     while(count--)
@@ -81,8 +83,108 @@ void sizzle()
         count = HoldCount;
         decrement = false;
     }
-    drawLandscape(offset);
-    models.drawCompressedModel(obj, ndxToValue, 15, yAngle, 0, 1);
+    drawLandscape(offset, true);
+    models.drawCompressedModel(car, ndxToValueCar, 15, yAngle, 0, 1);
+
+    if(arduboy.justPressed(A_BUTTON))
+    {
+        gScene = 1;
+    }
+}
+
+int8_t gSelection = 0;
+
+void game()
+{
+    drawLandscape(0, false);
+    float* modelMap = nullptr;
+    uint8_t* vehicle = nullptr;
+    switch(gSelection)
+    {
+        case 0:
+            vehicle = car;
+            modelMap = ndxToValueCar;
+            break;
+        case 1:
+            vehicle = truck;
+            modelMap = ndxToValueTruck;
+            break;
+        case 2:
+            vehicle = bus;
+            modelMap = ndxToValueBus;
+            break;
+        case 3:
+            vehicle = bike;
+            modelMap = ndxToValueBike;
+            break;
+    }
+    models.drawCompressedModel(vehicle, modelMap, 15, START_ANGLE+MAX_ANGLE, 0, 1);
+}
+
+void selection()
+{
+    float* modelMap = nullptr;
+    uint8_t* vehicle = nullptr;
+    uint8_t* name = nullptr;
+    switch(gSelection)
+    {
+        case 0:
+            vehicle = car;
+            modelMap = ndxToValueCar;
+            name = overland;
+            break;
+        case 1:
+            vehicle = truck;
+            modelMap = ndxToValueTruck;
+            name = baja;
+            break;
+        case 2:
+            vehicle = bus;
+            modelMap = ndxToValueBus;
+            name = burningman;
+            break;
+        case 3:
+            vehicle = bike;
+            modelMap = ndxToValueBike;
+            name = moto;
+            break;
+    }
+
+//    models.drawModel(obj, 15, yAngle, 0, 1);
+    models.drawCompressedModel(vehicle, modelMap, 15, yAngle, 0, 1);
+    sprites.drawSelfMasked(3, 16, left, 0);
+    sprites.drawSelfMasked(93, 16, right, 0);
+    sprites.drawSelfMasked(43, 56, name, 0);
+#ifdef PHASE3
+    yAngle+=3;
+#else
+    yAngle++;
+#endif
+
+    if(arduboy.justPressed(LEFT_BUTTON))
+    {
+        gSelection--;
+    }
+
+    if(arduboy.justPressed(RIGHT_BUTTON))
+    {
+        gSelection++;
+    }
+
+    if(arduboy.justPressed(A_BUTTON))
+    {
+        gScene = 2;
+    }
+
+    if(gSelection < 0)
+    {
+        gSelection = 3;
+    }
+
+    if(gSelection > 3)
+    {
+        gSelection = 0;
+    }
 }
 
 void loop()
@@ -97,24 +199,13 @@ void loop()
             sizzle();
             break;
         case 1:
-//          models.drawModel(obj, 15, yAngle, 0, 1);
-            models.drawCompressedModel(obj, ndxToValue, 15, yAngle, 0, 1);
-            sprites.drawSelfMasked(3, 16, left, 0);
-            sprites.drawSelfMasked(93, 16, right, 0);
-            sprites.drawSelfMasked(48, 56, overland, 0);
-#ifdef PHASE3
-            yAngle+=3;
-#else
-            yAngle++;
-#endif
+            selection();
+            break;
+        case 2:
+            game();
             break;
     }
 
     arduboy.display();
-
-    if(arduboy.justPressed(A_BUTTON))
-    {
-        gScene = 1;
-    }
 }
 
