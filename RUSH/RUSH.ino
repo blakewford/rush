@@ -30,11 +30,17 @@ void setup()
 #ifndef _AVR_ATMEGA4808_H_INCLUDED
     arduboy.begin();
 #endif
+#ifdef __AVR__
     arduboy.setFrameRate(60);
+#else
+    arduboy.setFrameRate(24);
+#endif
     models.begin();
     arduboy.initRandomSeed();
 }
 
+long pixelX[16];
+long pixelY[16];
 void drawLandscape(int8_t offset, bool branded)
 {
     sprites.drawSelfMasked(offset, 0, branded ? ridge_logo: ridge, 0);
@@ -42,22 +48,34 @@ void drawLandscape(int8_t offset, bool branded)
     {
         sprites.drawSelfMasked(32, 0, logo, 0);
     }
-    uint16_t count = 16;
 
+    uint16_t count = 16;
+#ifndef __AVR__
+    if(arduboy.everyXFrames(7))
+#endif
+    {
+        while(count--)
+        {
+           pixelX[count] = random() %  128;
+           pixelY[count] = (random() % 36) + 28;
+        }
+    }
+    count = 16;
     while(count--)
     {
-       long x = random() %  128;
-       long y = (random() % 36) + 28;
-       arduboy.drawPixel(x, y, 1);
+        arduboy.drawPixel(pixelX[count], pixelY[count], 1);
     }
 }
 
 int8_t count = 0;
+#ifdef __AVR__
+const int8_t HoldCount = 2;
+#else
 const int8_t HoldCount = 16;
+#endif
 
 void sizzle()
 {
-
     int8_t offset = 0;
     if(yAngle == START_ANGLE && count != 0)
     {
@@ -65,11 +83,19 @@ void sizzle()
     }
     else if(decrement)
     {
+#ifdef __AVR__
+        yAngle-=7;
+#else
         yAngle--;
+#endif
     }
     else
     {
+#ifdef __AVR__
+        yAngle+=7;
+#else
         yAngle++;
+#endif
     }
     if(yAngle > (START_ANGLE + MAX_ANGLE))
     {
@@ -121,6 +147,7 @@ void game()
     models.drawCompressedModel(vehicle, modelMap, 15, START_ANGLE+MAX_ANGLE, 0, 1);
 }
 
+int8_t last = 1;
 void selection()
 {
     float* modelMap = nullptr;
@@ -155,8 +182,25 @@ void selection()
     sprites.drawSelfMasked(3, 16, left, 0);
     sprites.drawSelfMasked(93, 16, right, 0);
     sprites.drawSelfMasked(43, 56, name, 0);
-#ifdef PHASE3
-    yAngle+=3;
+#ifdef __AVR__
+    switch(gSelection)
+    {
+        case 0:
+            yAngle+=7;
+            break;
+        case 1:
+            yAngle+=5;
+            break;
+        case 2:
+            yAngle+=4;
+            break;
+        case 3:
+            yAngle+=last;
+            last++;
+            if(last > 4)
+                last = 1;
+            break;
+    }
 #else
     yAngle++;
 #endif
