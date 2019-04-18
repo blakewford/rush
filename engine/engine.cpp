@@ -10,7 +10,7 @@ using namespace std::chrono;
 #include "RUSH/RUSH.ino"
 
 bool gKeepGoing = true;
-const int32_t SCALE = 8;
+const int32_t SCALE = 14;
 float SCREEN_DATA[WIDTH*HEIGHT];
 
 struct pgm

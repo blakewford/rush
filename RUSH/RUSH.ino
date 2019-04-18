@@ -118,11 +118,11 @@ void sizzle()
     }
 }
 
+uint32_t gCount = 0;
 int8_t gSelection = 0;
 
 void game()
 {
-    drawLandscape(0, false);
     float* modelMap = nullptr;
     uint8_t* vehicle = nullptr;
     switch(gSelection)
@@ -144,7 +144,35 @@ void game()
             modelMap = ndxToValueBike;
             break;
     }
-    models.drawCompressedModel(vehicle, modelMap, 15, START_ANGLE+MAX_ANGLE, 0, 1);
+    if(gCount < 72)
+    {
+        drawLandscape(0, false);
+        models.drawCompressedModel(vehicle, modelMap, 15, START_ANGLE+MAX_ANGLE, 0, 1);
+        gCount++;
+    }
+    else if(gCount >= 72 && gCount < 92)
+    {
+        drawLandscape(0, false);
+        models.drawCompressedModel(vehicle, modelMap, random()%15, START_ANGLE+random()%180, 0, 1);
+        gCount++;
+        delay(200);
+    }
+    else
+    {
+        sprites.drawSelfMasked(0, 0, ridge, 0);
+
+        long smokeX = 0;
+        long smokeY = 0;
+        uint16_t count = 16;
+        while(count--)
+        {
+            arduboy.drawPixel(pixelX[count], pixelY[count], 1);
+            smokeX = (random() % 12) + 58;
+            smokeY = random() %  28;
+            arduboy.drawPixel(smokeX, smokeY, 1);
+        }
+        models.drawCompressedModel(vehicle, modelMap, 180, START_ANGLE+MAX_ANGLE, 0, 1);
+    }
 }
 
 int8_t last = 1;
