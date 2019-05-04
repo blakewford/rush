@@ -8,17 +8,8 @@ const uint8_t BUFFER_SIZE = 16;
 
 struct param
 {
-    float value[BUFFER_SIZE];
-    int8_t shape[2];
-
-    param()
-    {
-        memset(value, '\0', sizeof(float)*BUFFER_SIZE);
-
-        // Most commonly used size
-        shape[0] = 3;
-        shape[1] = 1;
-    }
+    float value[BUFFER_SIZE] {};
+    int8_t shape[2] { 3, 1 };
 };
 
 enum rotation_axis: int8_t

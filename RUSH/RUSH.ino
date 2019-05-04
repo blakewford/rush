@@ -210,28 +210,9 @@ void selection()
     sprites.drawSelfMasked(3, 16, left, 0);
     sprites.drawSelfMasked(93, 16, right, 0);
     sprites.drawSelfMasked(43, 56, name, 0);
-#ifdef __AVR__
-    switch(gSelection)
-    {
-        case 0:
-            yAngle+=7;
-            break;
-        case 1:
-            yAngle+=5;
-            break;
-        case 2:
-            yAngle+=4;
-            break;
-        case 3:
-            yAngle+=last;
-            last++;
-            if(last > 4)
-                last = 1;
-            break;
-    }
-#else
-    yAngle++;
-#endif
+
+    yAngle += arduboy.cpuLoad()/100;
+
 
     if(arduboy.justPressed(LEFT_BUTTON))
     {
@@ -263,7 +244,6 @@ void loop()
 {
     if (!(arduboy.nextFrame())) return;
     arduboy.pollButtons();
-    arduboy.clear();
 
     switch(gScene)
     {
@@ -278,6 +258,6 @@ void loop()
             break;
     }
 
-    arduboy.display();
+    arduboy.display(CLEAR_BUFFER);
 }
 

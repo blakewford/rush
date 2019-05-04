@@ -30,30 +30,19 @@ void MatMul3x1(float* C, const float* A, const float* B)
     C[2] = (A[6]*B[0]) + (A[7]*B[1]) + (A[8]*B[2]);
 }
 
-void MatMul4x1(float* C, const float* A, const float* B)
+void MatMul3x1Sparse(float* C, const float* A, const float* B)
 {
-    C[0] = (A[0]*B[0]) + (A[1]*B[1]) + (A[2]*B[2]) + (A[3]*B[3]);
-    C[1] = (A[4]*B[0]) + (A[5]*B[1]) + (A[6]*B[2]) + (A[7]*B[3]);
-    C[2] = (A[8]*B[0]) + (A[9]*B[1]) + (A[10]*B[2]) + (A[11]*B[3]);
-    C[3] = (A[12]*B[0]) + (A[13]*B[1]) + (A[14]*B[2]) + (A[15]*B[3]);
+    C[0] = (A[0]*B[0]);
+    C[1] = (A[4]*B[1]);
+    C[2] = (A[8]*B[2]);
 }
 
-void TensorPort(const param& A, const param& B, float* C)
+void MatMul4x1Sparse(float* C, const float* A, const float* B)
 {
-    assert(A.shape[1] == B.shape[0]);
-//    MatMul(NULL, C, (float*)A.value, (float*)B.value, A.shape[0], B.shape[1], A.shape[1], true, true);
-#if defined(PHASE1) || defined(PHASE2)
-    if(A.shape[0] == 3)
-    {
-        MatMul3x1(C, (float*)A.value, (float*)B.value);
-    }
-    else
-    {
-        MatMul4x1(C, (float*)A.value, (float*)B.value);
-    }
-#else
-    MatMul(C, (float*)A.value, (float*)B.value, A.shape[0]);
-#endif
+    C[0] = (A[0]*B[0]);
+    C[1] = (A[5]*B[1]);
+    C[2] = 0;
+    C[3] = (A[15]*B[3]);
 }
 
 param X_AT_15_DEGREES;
@@ -235,7 +224,7 @@ struct vertex
     float z;
 };
 
-float copy[40];
+float copy[19*sizeof(float)];
 
 param Models::s_Ortho;
 param Models::s_zAngle;
@@ -257,7 +246,22 @@ void Models::begin()
 
     s_Ortho.shape[0] = 4;
     s_Ortho.shape[1] = 4;
-    memcpy(s_Ortho.value, ortho, 16*sizeof(float));
+    s_Ortho.value[0] = ortho[0][0];
+//    s_Ortho.value[1] = ortho[0][1];
+//    s_Ortho.value[2] = ortho[0][2];
+//    s_Ortho.value[3] = ortho[0][3];
+//    s_Ortho.value[4] = ortho[1][0];
+    s_Ortho.value[5] = ortho[1][1];
+//    s_Ortho.value[6] = ortho[1][2];
+//    s_Ortho.value[7] = ortho[1][3];
+//    s_Ortho.value[8] = ortho[2][0];
+//    s_Ortho.value[9] = ortho[2][1];
+//    s_Ortho.value[10] = ortho[2][2];
+//    s_Ortho.value[11] = ortho[2][3];
+//    s_Ortho.value[12] = ortho[3][0];
+//    s_Ortho.value[13] = ortho[3][1];
+//    s_Ortho.value[14] = ortho[3][2];
+    s_Ortho.value[15] = ortho[3][3];
 
     X_AT_15_DEGREES.value[0] = 1;
 //    X_AT_15_DEGREES.value[1] = 0;
@@ -289,7 +293,7 @@ void Models::drawCompressedModel(const uint8_t* model, const float* map, int16_t
     count*=3;
     gReportedVerts += count;
 
-    copy[0] = 3;
+    copy[0] = 6;
     int16_t ndx = 0;
     while(ndx < count)
     {
@@ -302,8 +306,17 @@ void Models::drawCompressedModel(const uint8_t* model, const float* map, int16_t
         copy[7] = map[pgm_read_byte(&model[ndx+6])];
         copy[8] = map[pgm_read_byte(&model[ndx+7])];
         copy[9] = map[pgm_read_byte(&model[ndx+8])];
+        copy[10] = map[pgm_read_byte(&model[ndx+9])];
+        copy[11] = map[pgm_read_byte(&model[ndx+10])];
+        copy[12] = map[pgm_read_byte(&model[ndx+11])];
+        copy[13] = map[pgm_read_byte(&model[ndx+12])];
+        copy[14] = map[pgm_read_byte(&model[ndx+13])];
+        copy[15] = map[pgm_read_byte(&model[ndx+14])];
+        copy[16] = map[pgm_read_byte(&model[ndx+15])];
+        copy[17] = map[pgm_read_byte(&model[ndx+16])];
+        copy[18] = map[pgm_read_byte(&model[ndx+17])];
         drawModel(xAngle, yAngle, zAngle, color);
-        ndx+=9;
+        ndx+=18;
     }
 }
 
@@ -322,9 +335,11 @@ void Models::modifyAngle(const int16_t angle, const rotation_axis axis)
         B.value[0] = copy[current++];
 //        B.shape[0] = 3;
 //        B.shape[1] = 1;
-        float C[(int8_t)(A.shape[0]*B.shape[1])];
-        TensorPort(A, B, C);
-        memcpy(&copy[start], &C[0], 3*sizeof(float));
+        float C[3];
+        MatMul3x1(C, A.value, B.value);
+        copy[start]   = C[0];
+        copy[start+1] = C[1];
+        copy[start+2] = C[2];
     }
 }
 
@@ -342,8 +357,10 @@ void Models::modifyXAngle()
 //        B.shape[0] = 3;
 //        B.shape[1] = 1;
         float C[3];
-        TensorPort(X_AT_15_DEGREES, B, C);
-        memcpy(&copy[start], &C[0], 3*sizeof(float));
+        MatMul3x1(C, X_AT_15_DEGREES.value, B.value);
+        copy[start]   = C[0];
+        copy[start+1] = C[1];
+        copy[start+2] = C[2];
     }
 }
 
@@ -369,9 +386,11 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
         H.value[0] = copy[current++];
 //        H.shape[0] = 3;
 //        H.shape[1] = 1;
-        float I[(int8_t)(s_zAngle.shape[0]*H.shape[1])];
-        TensorPort(s_zAngle, H, I);
-        memcpy(&copy[start], &I[0], 3*sizeof(float));
+        float I[3];
+        MatMul3x1Sparse(I, s_zAngle.value, H.value);
+        copy[start]   = I[0];
+        copy[start+1] = I[1];
+        copy[start+2] = I[2];
     }
 
     current = 1;
@@ -387,9 +406,11 @@ void Models::drawModel(int16_t xAngle, int16_t yAngle, int16_t zAngle, uint8_t c
         K.shape[0] = 4;
 //        K.shape[1] = 1;
 
-        float L[(int8_t)(s_Ortho.shape[0]*K.shape[1])];
-        TensorPort(s_Ortho, K, L);
-        memcpy(&copy[start], &L[0], 3*sizeof(float));
+        float L[4];
+        MatMul4x1Sparse(L, s_Ortho.value, K.value);
+        copy[start]   = L[0];
+        copy[start+1] = L[1];
+        copy[start+2] = L[2];
     }
 
     int8_t offsetX = WIDTH/2;
